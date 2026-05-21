@@ -10,7 +10,9 @@ services:
       - "5432:5432"
     volumes:
       - guessza_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # init.sql removed — Flyway now owns the schema and seed data.
+      # Spring Boot runs migrations automatically on startup via
+      # src/main/resources/db/migration/V1__init_schema.sql and V2__seed_locations.sql.
 
 volumes:
   guessza_data:
