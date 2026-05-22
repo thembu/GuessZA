@@ -12,4 +12,6 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
 @Query(value = "select  * from locations where active=true order by random() limit :count" , nativeQuery = true)
 List<Location> findRandomActiveLocations(@Param("count") int count);
 
+
+
 }
