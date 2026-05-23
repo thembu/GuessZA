@@ -1,5 +1,6 @@
 package com.thembu.guessza.common;
 
+import com.thembu.guessza.round.RoundAlreadyAnswered;
 import com.thembu.guessza.user.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 
@@ -15,5 +16,9 @@ public class GlobalExceptionHandler {
     public String handleUserNotFound(UserNotFoundException ex) {
         return ex.getMessage();
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleRoundAlreadyAnswered(RoundAlreadyAnswered ex){return  ex.getMessage();}
 
 }
