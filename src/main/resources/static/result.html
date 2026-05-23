@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>GuessZA — Round</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:'DM Sans',sans-serif;background:#0d0d0d;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+        .topbar{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:12px 20px;
+            background:rgba(0,0,0,0.6);
+            border-bottom:1px solid rgba(255,255,255,0.07);
+            z-index:10;
+            flex-shrink:0;
+        }
+        .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;}
+        .logo span{color:#009B77;}
+        .round-badge{
+            background:rgba(255,255,255,0.08);
+            border:1px solid rgba(255,255,255,0.12);
+            border-radius:20px;
+            padding:6px 16px;
+            font-size:13px;
+            color:rgba(255,255,255,0.7);
+        }
+        .round-badge strong{color:#fff;}
+        #streetview{flex:1;min-height:0;}
+        .bottom{
+            height:260px;
+            flex-shrink:0;
+            display:flex;
+            border-top:2px solid #009B77;
+            position:relative;
+        }
+        #map{flex:1;}
+        .map-overlay{
+            position:absolute;
+            bottom:16px;right:16px;
+            z-index:500;
+        }
+        .guess-btn{
+            background:#009B77;
+            color:#fff;
+            font-family:'DM Sans',sans-serif;
+            font-size:15px;
+            font-weight:500;
+            padding:13px 28px;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            transition:background 0.2s,opacity 0.2s;
+            box-shadow:0 4px 20px rgba(0,155,119,0.4);
+        }
+        .guess-btn:hover{background:#007a5e;}
+        .guess-btn:disabled{opacity:0.4;cursor:not-allowed;}
+        .map-hint{
+            position:absolute;
+            top:50%;left:50%;transform:translate(-50%,-50%);
+            background:rgba(0,0,0,0.65);
+            color:rgba(255,255,255,0.6);
+            font-size:13px;
+            padding:8px 16px;
+            border-radius:20px;
+            pointer-events:none;
+            z-index:400;
+            transition:opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+<div class="topbar">
+    <div class="logo">Guess<span>ZA</span></div>
+    <div class="round-badge">Round <strong id="roundNum">1</strong> of 5</div>
+    <div style="width:80px;"></div>
+</div>
+
+<div id="streetview"></div>
+
+<div class="bottom">
+    <div id="map"></div>
+    <p class="map-hint" id="mapHint">Click the map to drop your pin</p>
+    <div class="map-overlay">
+        <button class="guess-btn" id="guessBtn" disabled onclick="submitGuess()">Submit Guess</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const API = 'http://localhost:8080';
+    let map, marker, currentRoundId, currentRoundNum;
+    let guessLat = null, guessLng = null;
+
+    function initMap() {
+        map = L.map('map', {zoomControl:true}).setView([-28.5, 24.5], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution:'© OpenStreetMap'
+        }).addTo(map);
+
+        map.on('click', function(e) {
+            guessLat = e.latlng.lat;
+            guessLng = e.latlng.lng;
+            if(marker) marker.remove();
+            marker = L.marker([guessLat, guessLng]).addTo(map);
+            document.getElementById('guessBtn').disabled = false;
+            document.getElementById('mapHint').style.opacity = '0';
+        });
+    }
+
+    function initStreetView(lat, lng) {
+        const sv = new google.maps.StreetViewService();
+        sv.getPanorama({location:{lat,lng}, radius:500}, (data, status) => {
+            if(status === 'OK') {
+                new google.maps.StreetViewPanorama(document.getElementById('streetview'), {
+                    position: data.location.latLng,
+                    addressControl: false,
+                    showRoadLabels: false,
+                    fullscreenControl: false,
+                    motionTracking: false,
+                });
+            }
+        });
+    }
+
+    async function loadRound() {
+        const gameId = localStorage.getItem('gameId');
+        // TODO: GET /api/games/{gameId}/current-round
+        // set currentRoundId, currentRoundNum
+        // call initStreetView(lat, lng)
+        // update round badge
+    }
+
+    async function submitGuess() {
+        if(guessLat === null) return;
+        document.getElementById('guessBtn').disabled = true;
+        // TODO: POST /api/rounds/{currentRoundId}/guess with guessLat/guessLng
+        // save result to localStorage
+        // navigate to result.html
+    }
+
+    initMap();
+    loadRound();
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+</body>
+</html>
