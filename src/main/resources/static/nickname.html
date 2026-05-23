@@ -122,7 +122,35 @@
         err.style.display = 'none';
 
         try {
+
             // TODO: POST /api/users, save userId, POST /api/games, save gameId, navigate to game.html
+           const res =  await  fetch(`${API}/api/users`, {
+                method : "POST",
+                headers: {
+                    "Content-Type": "application/json", // Tell the server you're sending JSON
+                },
+                body : JSON.stringify({ nickname: nickname })
+            })
+
+            const user = await res.json();
+
+
+           localStorage.setItem("userId" , user.id)
+           localStorage.setItem("nickname", user.nickname)
+           localStorage.setItem("highScore", user.highScore)
+           localStorage.setItem("gamesPlayed", user.gamesPlayed)
+
+
+            const gameRes = await fetch(`${API}/api/games`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id })
+            });
+            const game = await gameRes.json();
+            localStorage.setItem('gameId', game.id);
+            window.location.href = 'game.html';
+
+
         } catch(e) {
             err.textContent = 'Something went wrong. Is the server running?';
             err.style.display = 'block';

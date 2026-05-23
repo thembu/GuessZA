@@ -9,7 +9,9 @@ public record GuessResponse(
         String locationCity,
         Province locationProvince,
         double locationLatitude,
-        double locationLongitude
+        double locationLongitude,
+        boolean gameOver,
+        int totalScore
 
 ) {
 }

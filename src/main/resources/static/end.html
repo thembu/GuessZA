@@ -3,147 +3,135 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GuessZA — Round</title>
+    <title>GuessZA — Game Over</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'DM Sans',sans-serif;background:#0d0d0d;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-        .topbar{
-            display:flex;align-items:center;justify-content:space-between;
-            padding:12px 20px;
-            background:rgba(0,0,0,0.6);
-            border-bottom:1px solid rgba(255,255,255,0.07);
-            z-index:10;
-            flex-shrink:0;
-        }
-        .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;}
-        .logo span{color:#009B77;}
-        .round-badge{
-            background:rgba(255,255,255,0.08);
-            border:1px solid rgba(255,255,255,0.12);
-            border-radius:20px;
-            padding:6px 16px;
-            font-size:13px;
-            color:rgba(255,255,255,0.7);
-        }
-        .round-badge strong{color:#fff;}
-        #streetview{flex:1;min-height:0;}
-        .bottom{
-            height:260px;
-            flex-shrink:0;
+        body{
+            font-family:'DM Sans',sans-serif;
+            height:100vh;
             display:flex;
-            border-top:2px solid #009B77;
-            position:relative;
+            align-items:center;
+            justify-content:center;
+            background:#0d0d0d;
         }
-        #map{flex:1;}
-        .map-overlay{
-            position:absolute;
-            bottom:16px;right:16px;
-            z-index:500;
+        .card{
+            background:#161616;
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:20px;
+            padding:52px 48px;
+            width:90%;
+            max-width:420px;
+            text-align:center;
         }
-        .guess-btn{
+        .flag{font-size:48px;margin-bottom:20px;}
+        h2{
+            font-family:'Bebas Neue',sans-serif;
+            font-size:36px;
+            color:#fff;
+            letter-spacing:1px;
+            margin-bottom:8px;
+        }
+        .sub{color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:36px;}
+        .score-box{
+            background:rgba(0,155,119,0.1);
+            border:1px solid rgba(0,155,119,0.3);
+            border-radius:14px;
+            padding:28px;
+            margin-bottom:12px;
+        }
+        .score-label{font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+        .score-value{
+            font-family:'Bebas Neue',sans-serif;
+            font-size:64px;
+            color:#009B77;
+            letter-spacing:2px;
+            line-height:1;
+        }
+        .score-max{font-size:13px;color:rgba(255,255,255,0.25);margin-top:6px;}
+        .high-score{
+            font-size:13px;
+            color:rgba(255,255,255,0.35);
+            margin-bottom:32px;
+        }
+        .high-score span{color:#e8a020;}
+        .play-btn{
+            display:block;
+            width:100%;
             background:#009B77;
             color:#fff;
             font-family:'DM Sans',sans-serif;
             font-size:15px;
             font-weight:500;
-            padding:13px 28px;
+            padding:15px;
             border:none;
             border-radius:10px;
             cursor:pointer;
-            transition:background 0.2s,opacity 0.2s;
-            box-shadow:0 4px 20px rgba(0,155,119,0.4);
+            transition:background 0.2s;
+            margin-bottom:12px;
         }
-        .guess-btn:hover{background:#007a5e;}
-        .guess-btn:disabled{opacity:0.4;cursor:not-allowed;}
-        .map-hint{
-            position:absolute;
-            top:50%;left:50%;transform:translate(-50%,-50%);
-            background:rgba(0,0,0,0.65);
-            color:rgba(255,255,255,0.6);
+        .play-btn:hover{background:#007a5e;}
+        .home-link{
             font-size:13px;
-            padding:8px 16px;
-            border-radius:20px;
-            pointer-events:none;
-            z-index:400;
-            transition:opacity 0.3s;
+            color:rgba(255,255,255,0.3);
+            text-decoration:none;
+            transition:color 0.2s;
         }
+        .home-link:hover{color:rgba(255,255,255,0.6);}
     </style>
 </head>
 <body>
-<div class="topbar">
-    <div class="logo">Guess<span>ZA</span></div>
-    <div class="round-badge">Round <strong id="roundNum">1</strong> of 5</div>
-    <div style="width:80px;"></div>
-</div>
-
-<div id="streetview"></div>
-
-<div class="bottom">
-    <div id="map"></div>
-    <p class="map-hint" id="mapHint">Click the map to drop your pin</p>
-    <div class="map-overlay">
-        <button class="guess-btn" id="guessBtn" disabled onclick="submitGuess()">Submit Guess</button>
+<div class="card">
+    <div class="flag">🏁</div>
+    <h2>Game Over</h2>
+    <p class="sub">Here's how you did, <span id="nickname">player</span></p>
+    <div class="score-box">
+        <div class="score-label">Total Score</div>
+        <div class="score-value" id="totalScore">0</div>
+        <div class="score-max">out of 25,000</div>
     </div>
+    <p class="high-score">Your best: <span id="highScore">—</span></p>
+    <button class="play-btn" onclick="playAgain()">Play Again</button>
+    <a href="index.html" class="home-link">Back to home</a>
 </div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const API = 'http://localhost:8080';
-    let map, marker, currentRoundId, currentRoundNum;
-    let guessLat = null, guessLng = null;
 
-    function initMap() {
-        map = L.map('map', {zoomControl:true}).setView([-28.5, 24.5], 5);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution:'© OpenStreetMap'
-        }).addTo(map);
+    async function loadEndScreen() {
+        const totalScore = localStorage.getItem('totalScore') || '0';
+        const nickname = localStorage.getItem('nickname') || 'player';
+        const userId = localStorage.getItem('userId');
 
-        map.on('click', function(e) {
-            guessLat = e.latlng.lat;
-            guessLng = e.latlng.lng;
-            if(marker) marker.remove();
-            marker = L.marker([guessLat, guessLng]).addTo(map);
-            document.getElementById('guessBtn').disabled = false;
-            document.getElementById('mapHint').style.opacity = '0';
-        });
+        document.getElementById('totalScore').textContent = parseInt(totalScore).toLocaleString();
+        document.getElementById('nickname').textContent = nickname;
+
+        if(userId) {
+            try {
+                const res = await fetch(`${API}/api/users/${userId}`);
+                const user = await res.json();
+                document.getElementById('highScore').textContent = (user.highScore || 0).toLocaleString();
+            } catch(e) {}
+        }
     }
 
-    function initStreetView(lat, lng) {
-        const sv = new google.maps.StreetViewService();
-        sv.getPanorama({location:{lat,lng}, radius:500}, (data, status) => {
-            if(status === 'OK') {
-                new google.maps.StreetViewPanorama(document.getElementById('streetview'), {
-                    position: data.location.latLng,
-                    addressControl: false,
-                    showRoadLabels: false,
-                    fullscreenControl: false,
-                    motionTracking: false,
-                });
-            }
-        });
+    async function playAgain() {
+        const userId = localStorage.getItem('userId');
+        if(!userId) { window.location.href = 'index.html'; return; }
+        try {
+            const res = await fetch(`${API}/api/games`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: userId })
+            });
+            const game = await res.json();
+            localStorage.setItem('gameId', game.id);
+            window.location.href = 'game.html';
+        } catch(e) {
+            window.location.href = 'index.html';
+        }
     }
 
-    async function loadRound() {
-        const gameId = localStorage.getItem('gameId');
-        // TODO: GET /api/games/{gameId}/current-round
-        // set currentRoundId, currentRoundNum
-        // call initStreetView(lat, lng)
-        // update round badge
-    }
-
-    async function submitGuess() {
-        if(guessLat === null) return;
-        document.getElementById('guessBtn').disabled = true;
-        // TODO: POST /api/rounds/{currentRoundId}/guess with guessLat/guessLng
-        // save result to localStorage
-        // navigate to result.html
-    }
-
-    initMap();
-    loadRound();
+    loadEndScreen();
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
 </body>
 </html>

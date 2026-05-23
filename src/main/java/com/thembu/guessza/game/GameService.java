@@ -56,7 +56,7 @@ public class GameService {
        }
 
        //return game response to  user
-       return  new GameResponse(savedGame.getId(), GameStatus.IN_PROGRESS, LocalDateTime.now());
+       return  new GameResponse(savedGame.getId(), user.getId(),GameStatus.IN_PROGRESS, LocalDateTime.now());
 
     }
 

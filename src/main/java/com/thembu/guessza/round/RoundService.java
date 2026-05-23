@@ -75,11 +75,13 @@ public class RoundService {
 
         List<Round> allRounds = roundRepository.findByGame(game);
         boolean completed = allRounds.stream().noneMatch(r -> r.getAnsweredAt() == null);
-
+        int totalScore = allRounds.stream()
+                .filter(r -> r.getScore() != null)
+                .mapToInt(Round::getScore)
+                .sum();
         if(completed) {
             game.setStatus(GameStatus.COMPLETED);
-            Integer currentScore = allRounds.stream().mapToInt(Round::getScore).sum();
-            game.setTotalScore(currentScore + round.getScore());
+            game.setTotalScore(totalScore);
 
             if(game.getTotalScore() > user.getHighScore()) {
                 user.setHighScore(game.getTotalScore());
@@ -97,7 +99,7 @@ public class RoundService {
 
 
 
-        return  new GuessResponse(score.score() , score.distanceMeters(), round.getLocation().getName() , round.getLocation().getCity() , round.getLocation().getProvince() , round.getLocation().getLatitude() , round.getLocation().getLongitude());
+        return  new GuessResponse(score.score() , score.distanceMeters(), round.getLocation().getName() , round.getLocation().getCity() , round.getLocation().getProvince() , round.getLocation().getLatitude() , round.getLocation().getLongitude(), completed, totalScore);
 
 
 
