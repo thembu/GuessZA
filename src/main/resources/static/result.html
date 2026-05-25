@@ -95,6 +95,7 @@
     }
 
     function initMap() {
+        new Audio('/sound-pointcount.mp3').play();
         const result   = JSON.parse(localStorage.getItem('lastResult') || '{}');
         const guessLat = parseFloat(localStorage.getItem('guessLat'));
         const guessLng = parseFloat(localStorage.getItem('guessLng'));
@@ -127,8 +128,8 @@
                 scale: 10,
                 fillColor: '#009B77',
                 fillOpacity: 1,
-                strokeColor: '#fff',
-                strokeWeight: 2
+                strokeColor: '#000000',
+                strokeWeight: 1
             }
         });
 
@@ -147,18 +148,12 @@
             }
         });
 
-        // Line between them
         new google.maps.Polyline({
             path: [actualPos, guessPos],
             map,
-            strokeColor: '#ffffff',
-            strokeOpacity: 0.4,
-            strokeWeight: 2,
-            icons: [{
-                icon: {path: 'M 0,-1 0,1', strokeOpacity: 1, scale: 3},
-                offset: '0',
-                repeat: '12px'
-            }]
+            strokeColor: '#000000',
+            strokeOpacity: 1,
+            strokeWeight: 2
         });
 
         // Fit both markers in view
@@ -173,7 +168,7 @@
         }
     }
 
-    function nextRound() {
+    async function nextRound() {
         const gameOver = localStorage.getItem('gameOver') === 'true';
         window.location.href = gameOver ? 'end.html' : 'game.html';
     }

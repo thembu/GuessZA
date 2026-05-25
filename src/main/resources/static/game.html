@@ -112,13 +112,17 @@
 
     function initGoogleMaps() {
         // Guess map — centered on SA
+        new Audio('/sound-newround.mp3').play();
+
         guessMap = new google.maps.Map(document.getElementById('guessMap'), {
             center: {lat: -28.5, lng: 24.5},
             zoom: 5,
             disableDefaultUI: true,
             zoomControl: true,
             clickableIcons: false,
-            mapTypeId: 'roadmap'
+            mapTypeId: 'roadmap',
+            draggableCursor: 'crosshair'  // ← add here
+
         });
 
         guessMap.addListener('click', function(e) {
@@ -177,24 +181,21 @@
     async function submitGuess() {
         if(guessLat === null) return;
         document.getElementById('guessBtn').disabled = true;
-        // TODO: POST /api/rounds/{currentRoundId}/guess with guessLat/guessLng
-        const res = await fetch(`${API}/api/rounds/${currentRoundId}/guess`, {
-            method : "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body : JSON.stringify({guessLatitude: guessLat , guessLongitude: guessLng})
 
-        })
+        const res = await fetch(`${API}/api/rounds/${currentRoundId}/guess`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({guessLatitude: guessLat, guessLongitude: guessLng})
+        });
 
         const guessResult = await res.json();
-        localStorage.setItem("lastResult" , JSON.stringify(guessResult))
-        localStorage.setItem("guessLat" , guessLat)
-        localStorage.setItem("guessLng" , guessLng)
+        localStorage.setItem('lastResult', JSON.stringify(guessResult));
+        localStorage.setItem('guessLat', guessLat);
+        localStorage.setItem('guessLng', guessLng);
         localStorage.setItem('gameOver', guessResult.gameOver);
         localStorage.setItem('currentRoundNum', currentRoundNum);
         localStorage.setItem('totalScore', guessResult.totalScore);
         window.location.href = 'result.html';
-
-
     }
 </script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAupnVFwh_d1dbKI9WPDZFJOsL2kltLQgA&callback=initGoogleMaps" async defer></script>
