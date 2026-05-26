@@ -92,8 +92,18 @@
 
 <div class="topbar">
     <div class="logo">Guess<span>ZA</span></div>
+    <div id="timer" style="
+        font-family:'Bebas Neue',sans-serif;
+        font-size:22px;
+        color:#fff;
+        background:rgba(0,0,0,0.55);
+        border:1px solid rgba(255,255,255,0.15);
+        border-radius:20px;
+        padding:6px 16px;
+        letter-spacing:1px;
+    ">5:00</div>
     <div class="round-badge">Round <strong id="roundNum">1</strong> of 5</div>
-    <div style="width:80px;"></div>
+
 </div>
 
 <div class="map-panel" id="mapPanel">
@@ -109,6 +119,30 @@
     let guessMap, guessMarker, panorama;
     let currentRoundId, currentRoundNum;
     let guessLat = null, guessLng = null;
+    let timerInterval
+    let guessSubmitted = false
+    let timeLeft = 300
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            timeLeft--;
+
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const formatted = minutes + ':' + (seconds < 10 ? '0' + seconds : seconds);
+
+            document.getElementById('timer').textContent = formatted;
+
+            if(timeLeft <= 0) {
+                clearInterval(timerInterval);
+                if(guessLat === null) {
+                    guessLat = 0;
+                    guessLng = 0;
+                }
+                submitGuess();
+            }
+        }, 1000);
+    }
 
     function initGoogleMaps() {
         // Guess map — centered on SA
@@ -176,12 +210,17 @@
 
         initStreetView(round.latitude, round.longitude);
         document.getElementById('roundNum').textContent = round.roundNumber;
+
+        startTimer()
+
     }
 
     async function submitGuess() {
-        if(guessLat === null) return;
+        if(guessSubmitted) return;
+        guessSubmitted = true
         document.getElementById('guessBtn').disabled = true;
 
+        clearInterval(timerInterval)
         const res = await fetch(`${API}/api/rounds/${currentRoundId}/guess`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

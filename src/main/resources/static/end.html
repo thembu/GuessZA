@@ -98,6 +98,7 @@
     const API = 'http://localhost:8080';
 
     async function loadEndScreen() {
+        new Audio('/sound-pointcount.mp3').play();
         const totalScore = localStorage.getItem('totalScore') || '0';
         const nickname = localStorage.getItem('nickname') || 'player';
         const userId = localStorage.getItem('userId');
