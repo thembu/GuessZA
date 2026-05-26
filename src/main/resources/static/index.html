@@ -78,8 +78,51 @@
     <div class="flag">🇿🇦</div>
     <h1>Guess<span>ZA</span></h1>
     <p>You've been dropped somewhere in South Africa.<br/>Look around and guess where you are.</p>
-    <a href="nickname.html" class="play-btn">Play</a>
+    <a  class="play-btn" onclick="navigate()">Play</a>
     <p class="tagline">5 rounds · no time limit</p>
 </div>
+
+<script>
+
+    const API = 'http://localhost:8080';
+
+
+    const navigate = async ()  =>  {
+
+       const userId  = localStorage.getItem("userId");
+
+       if(userId) {
+
+             const res =   await fetch(`${API}/api/users/${userId}`)
+
+              if(res.status === 200) {
+
+                  const createGame = await fetch(`${API}/api/games`, {
+                      method : 'POST',
+                      headers: {
+                          "Content-Type": "application/json", // Tell the server you're sending JSON
+                      },
+                      body : JSON.stringify({userId: userId})
+                  })
+
+                  const response = await createGame.json()
+                  localStorage.setItem("gameId", response.id)
+                  window.location.href = "game.html"
+
+              }
+              else if(res.status === 404) {
+                  window.location.href = "nickname.html"
+
+              }
+
+
+       }else {
+           window.location.href = "nickname.html"
+       }
+
+    }
+
+</script>
+
 </body>
 </html>

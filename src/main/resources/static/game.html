@@ -234,6 +234,18 @@
         localStorage.setItem('gameOver', guessResult.gameOver);
         localStorage.setItem('currentRoundNum', currentRoundNum);
         localStorage.setItem('totalScore', guessResult.totalScore);
+
+
+        if(guessResult.gameOver) {
+            const user = localStorage.getItem('userId')
+            const userRes = await fetch(`${API}/api/users/${user}`)
+
+            const userResult = await userRes.json()
+            console.log(userResult)
+            localStorage.setItem("highScore", userResult.highScore)
+            localStorage.setItem("gamesPlayed",  userResult.gamesPlayed)
+        }
+
         window.location.href = 'result.html';
     }
 </script>
