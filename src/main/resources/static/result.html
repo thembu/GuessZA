@@ -96,6 +96,7 @@
 
     function initMap() {
         new Audio('/sound-pointcount.mp3').play();
+
         const result   = JSON.parse(localStorage.getItem('lastResult') || '{}');
         const guessLat = parseFloat(localStorage.getItem('guessLat'));
         const guessLng = parseFloat(localStorage.getItem('guessLng'));
@@ -173,6 +174,6 @@
         window.location.href = gameOver ? 'end.html' : 'game.html';
     }
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAupnVFwh_d1dbKI9WPDZFJOsL2kltLQgA&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=placeholder&callback=initGoogleMaps" async defer></script>
 </body>
 </html>

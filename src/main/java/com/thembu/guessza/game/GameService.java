@@ -45,7 +45,7 @@ public class GameService {
 
         List<Location> locations = locationService.getRandomLocations(5);
         int  count = 1;
-       for (Location location : locations) {
+        for (Location location : locations) {
 
            Round round = new Round();
            round.setGame(game);
