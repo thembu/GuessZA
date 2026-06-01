@@ -75,10 +75,13 @@ public class RoundService {
 
         List<Round> allRounds = roundRepository.findByGame(game);
         boolean completed = allRounds.stream().noneMatch(r -> r.getAnsweredAt() == null);
+
+        //sum up score for all rounds
         int totalScore = allRounds.stream()
                 .filter(r -> r.getScore() != null)
                 .mapToInt(Round::getScore)
                 .sum();
+
         if(completed) {
             game.setStatus(GameStatus.COMPLETED);
             game.setTotalScore(totalScore);
