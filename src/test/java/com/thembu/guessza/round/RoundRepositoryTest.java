@@ -6,6 +6,8 @@ import com.thembu.guessza.location.Location;
 import com.thembu.guessza.location.LocationRepository;
 import com.thembu.guessza.user.User;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.useRepresentation;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -14,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @DataJpaTest
 //dont use in memory h2 but use database from data source
@@ -65,6 +68,118 @@ import java.util.List;
 
 
     }
+
+    @Test
+    void ExcludeOtherGameRounds(){
+        User user = makeUser("thembu");
+        Game game1 = makeGame(user);
+        Game game2 = makeGame(user);
+
+        //game1 rounds
+
+        Round r1 = makeRound(game1 , anyLocation(), 1, null);
+        Round r2 = makeRound(game1, anyLocation(),2, null);
+
+        //game2 rounds
+
+        Round r3 = makeRound(game2 , anyLocation(), 1 , null);
+        Round r4 = makeRound(game2 , anyLocation() , 2 , null);
+
+        //call method
+
+        List<Round> rounds = roundRepository.findByGame(game1);
+
+        assertThat(rounds).extracting(Round::getId).containsExactlyInAnyOrder(r1.getId(), r2.getId());
+    }
+
+    @Test
+    void returnsEmptyWhenAllRoundsAnswered () {
+
+        User user = makeUser("thembu");
+        Game game = makeGame(user);
+
+        //create rounds
+        Round r1 = makeRound(game , anyLocation(),1,LocalDateTime.now());
+        Round r2 = makeRound(game , anyLocation(),2,LocalDateTime.now());
+
+        //call method
+
+        Optional<Round> round = roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game);
+
+        //check if its empty
+
+        assertThat(round).isEmpty();
+
+    }
+
+    @Test
+    void returnLowestRoundNumberWhenMultipleUnanswered() {
+        User user = makeUser("thembu");
+        Game game = makeGame(user);
+
+        //create rounds
+        Round r1 = makeRound(game , anyLocation(),2,null);
+        Round r2 = makeRound(game , anyLocation(),3,null);
+        Round r3 = makeRound(game , anyLocation(),1,null);
+
+        //call method
+
+        Optional<Round> round = roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game);
+
+        //check if it exists and is lowest number
+
+        assertThat(round).isPresent();
+        assertThat(round.get().getRoundNumber()).isEqualTo(1);
+
+    }
+
+
+    @Test
+    void excludeAlreadyAnsweredRounds() {
+
+        User user = makeUser("thembu");
+        Game game = makeGame(user);
+
+        //create rounds
+        Round r1 = makeRound(game , anyLocation(),1,LocalDateTime.now());
+        Round r2 = makeRound(game , anyLocation(),2,null);
+
+        //call method
+
+        Optional<Round> round = roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game);
+
+        assertThat(round).isPresent();
+        assertThat(round.get().getRoundNumber()).isEqualTo(2);
+
+    }
+
+    @Test
+    void findFirstExcludesOtherGameRounds () {
+
+        User user = makeUser("thembu");
+        Game game1 = makeGame(user);
+        Game game2 = makeGame(user);
+
+        //game1 rounds
+
+        Round r1 = makeRound(game1 , anyLocation(), 1, null);
+        Round r2 = makeRound(game1, anyLocation(),2, null);
+
+        //game2 rounds
+
+        Round r3 = makeRound(game2 , anyLocation(), 1 , null);
+        Round r4 = makeRound(game2 , anyLocation() , 2 , null);
+
+        //call method
+
+        Optional<Round> round = roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game1);
+
+        assertThat(round).isPresent();
+        assertThat(round.get().getId()).isEqualTo(r1.getId());
+
+    }
+
+
 
 
     private User makeUser(String nickname) {
