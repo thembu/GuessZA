@@ -97,6 +97,13 @@
 <script>
     const API = 'http://localhost:8080';
 
+
+    let visited_locations = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+        if (Array.isArray(stored)) visited_locations = stored;
+    } catch(e) {}
+
     async function loadEndScreen() {
         new Audio('/sound-pointcount.mp3').play();
         const totalScore = localStorage.getItem('totalScore') || '0';
@@ -122,7 +129,7 @@
             const res = await fetch(`${API}/api/games`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: userId })
+                body: JSON.stringify({ userId: userId , visitedLocations: visited_locations})
             });
             const game = await res.json();
             localStorage.setItem('gameId', game.id);

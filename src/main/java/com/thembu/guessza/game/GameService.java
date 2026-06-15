@@ -3,6 +3,7 @@ package com.thembu.guessza.game;
 import com.thembu.guessza.game.dto.CreateGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.location.Location;
+import com.thembu.guessza.location.LocationRepository;
 import com.thembu.guessza.location.LocationService;
 import com.thembu.guessza.round.Round;
 import com.thembu.guessza.round.RoundRepository;
@@ -21,19 +22,19 @@ public class GameService {
     private final GameRepository gameRepository;
     private  final UserRepository userRepository;
     private  final RoundRepository roundRepository;
-    private final LocationService locationService;
+    private  final LocationRepository locationRepository;
 
-    public GameService(GameRepository gameRepository, UserRepository userRepository, RoundRepository roundRepository, LocationService locationService) {
+    public GameService(GameRepository gameRepository, UserRepository userRepository, RoundRepository roundRepository, LocationRepository locationRepository) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.roundRepository = roundRepository;
-        this.locationService = locationService;
+        this.locationRepository = locationRepository;
     }
 
     @Transactional
     public GameResponse createGame(CreateGameRequest request) {
 
-        //create new instance of game entity, add user/player fot that game and save it
+        //create new instance of game entity, add user/player for that game and save it
         Game game = new Game();
 
         User user = userRepository.findById(request.userId()).orElseThrow(()-> new UserNotFoundException(request.userId()));
@@ -43,7 +44,9 @@ public class GameService {
 
         //generate 5 random locations and save them in 5 separate rounds of the game
 
-        List<Location> locations = locationService.getRandomLocations(5);
+        List<String> visitedLocations = request.visitedLocations().isEmpty() ? List.of("") : request.visitedLocations();
+
+        List<Location> locations = locationRepository.findRandomActiveLocations(visitedLocations , 5);
         int  count = 1;
         for (Location location : locations) {
 

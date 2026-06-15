@@ -9,9 +9,7 @@ import java.util.UUID;
 
 public interface LocationRepository extends JpaRepository<Location, UUID> {
 
-@Query(value = "select  * from locations where active=true order by random() limit :count" , nativeQuery = true)
-List<Location> findRandomActiveLocations(@Param("count") int count);
-
-
+@Query(value = "select  * from locations where active=true and name not in(:visitedLocations) order by random() limit :count" , nativeQuery = true)
+List<Location> findRandomActiveLocations(@Param("visitedLocations") List<String> excludedLocations,  @Param("count") int count);
 
 }

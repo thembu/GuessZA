@@ -102,6 +102,12 @@
 <script>
     const API = 'http://localhost:8080';
 
+    let visited_locations = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+        if (Array.isArray(stored)) visited_locations = stored;
+    } catch(e) {}
+
     document.getElementById('nickname').addEventListener('keydown', e => {
         if(e.key === 'Enter') startGame();
     });
@@ -144,7 +150,7 @@
             const gameRes = await fetch(`${API}/api/games`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.id })
+                body: JSON.stringify({ userId: user.id , visitedLocations: visited_locations})
             });
             const game = await gameRes.json();
             localStorage.setItem('gameId', game.id);

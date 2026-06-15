@@ -123,6 +123,14 @@
     let guessSubmitted = false
     let timeLeft = 300
 
+    let visited_locations = [];
+    try {
+        const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+        if (Array.isArray(stored)) visited_locations = stored;
+    } catch (e) {
+        visited_locations = [];
+    }
+
     function startTimer() {
         timerInterval = setInterval(() => {
             timeLeft--;
@@ -216,6 +224,9 @@
     }
 
     async function submitGuess() {
+
+
+
         if(guessSubmitted) return;
         guessSubmitted = true
         document.getElementById('guessBtn').disabled = true;
@@ -234,6 +245,10 @@
         localStorage.setItem('gameOver', guessResult.gameOver);
         localStorage.setItem('currentRoundNum', currentRoundNum);
         localStorage.setItem('totalScore', guessResult.totalScore);
+
+        visited_locations.push(guessResult.locationName)
+
+        localStorage.setItem("visitedLocations" , JSON.stringify(visited_locations))
 
 
         if(guessResult.gameOver) {
