@@ -1,269 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GuessZA — Round</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'DM Sans',sans-serif;background:#000;overflow:hidden;height:100vh;}
-
-        #streetview{position:fixed;inset:0;width:100%;height:100%;z-index:0;}
-
-        .topbar{
-            position:fixed;top:0;left:0;right:0;
-            display:flex;align-items:center;justify-content:space-between;
-            padding:12px 20px;
-            background:linear-gradient(to bottom,rgba(0,0,0,0.6),transparent);
-            z-index:10;
-        }
-        .logo{font-family:'Bebas Neue',sans-serif;font-size:24px;color:#fff;letter-spacing:1px;}
-        .logo span{color:#009B77;}
-        .round-badge{
-            background:rgba(0,0,0,0.55);
-            border:1px solid rgba(255,255,255,0.15);
-            border-radius:20px;
-            padding:6px 16px;
-            font-size:13px;
-            color:rgba(255,255,255,0.7);
-        }
-        .round-badge strong{color:#fff;}
-
-        .map-panel{
-            position:fixed;
-            bottom:24px;right:24px;
-            z-index:20;
-            border-radius:12px;
-            overflow:hidden;
-            box-shadow:0 8px 32px rgba(0,0,0,0.7);
-            width:220px;
-            height:170px;
-            transition:width 0.3s ease, height 0.3s ease, box-shadow 0.3s ease;
-            display:flex;
-            flex-direction:column;
-        }
-        .map-panel:hover{
-            width:420px;
-            height:320px;
-            box-shadow:0 12px 48px rgba(0,0,0,0.9);
-        }
-
-        #guessMap{
-            width:100%;
-            flex:1;
-            cursor:crosshair;
-        }
-
-        .map-footer{
-            background:#1a1a1a;
-            border-top:2px solid #009B77;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            padding:10px 12px;
-            height:52px;
-            flex-shrink:0;
-        }
-        .map-hint-text{
-            font-size:11px;
-            color:rgba(255,255,255,0.35);
-        }
-        .guess-btn{
-            background:#009B77;
-            color:#fff;
-            font-family:'DM Sans',sans-serif;
-            font-size:13px;
-            font-weight:500;
-            padding:8px 18px;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
-            transition:background 0.2s,opacity 0.2s;
-            white-space:nowrap;
-        }
-        .guess-btn:hover{background:#007a5e;}
-        .guess-btn:disabled{opacity:0.35;cursor:not-allowed;}
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Round</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#000;overflow:hidden;height:100vh;}
+  #streetview{position:fixed;inset:0;width:100%;height:100%;z-index:0;}
+  .topbar{
+    position:fixed;top:0;left:0;right:0;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px;
+    background:linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+    z-index:10;
+  }
+  .brand{font-weight:700;font-size:18px;color:#fff;letter-spacing:-0.3px;}
+  .brand span{color:#4ade80;}
+  .pill{
+    background:rgba(0,0,0,0.55);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:100px;
+    padding:8px 16px;
+    font-size:13px;color:rgba(255,255,255,0.85);
+    font-weight:500;
+  }
+  .pill strong{color:#fff;font-weight:600;}
+  #timer{
+    font-size:15px;color:#fff;
+    background:rgba(0,0,0,0.55);
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:100px;padding:8px 18px;
+    font-weight:600;font-variant-numeric:tabular-nums;
+  }
+  .map-panel{
+    position:fixed;bottom:24px;right:24px;z-index:20;
+    border-radius:12px;overflow:hidden;
+    box-shadow:0 8px 32px rgba(0,0,0,0.7);
+    width:240px;height:180px;
+    transition:width 0.3s ease, height 0.3s ease;
+    display:flex;flex-direction:column;
+  }
+  .map-panel:hover{width:440px;height:340px;}
+  #guessMap{width:100%;flex:1;cursor:crosshair;}
+  .map-footer{
+    background:#141a17;
+    border-top:1px solid rgba(74,222,128,0.3);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 12px;height:52px;flex-shrink:0;
+  }
+  .map-hint-text{font-size:11px;color:rgba(255,255,255,0.4);}
+  .guess-btn{
+    background:#4ade80;color:#0a2818;
+    font-family:inherit;font-size:13px;font-weight:600;
+    padding:8px 18px;border:none;border-radius:6px;
+    cursor:pointer;transition:background 0.15s,opacity 0.15s;
+    white-space:nowrap;
+  }
+  .guess-btn:hover{background:#3ec972;}
+  .guess-btn:disabled{opacity:0.35;cursor:not-allowed;}
+</style>
 </head>
 <body>
-
 <div id="streetview"></div>
-
 <div class="topbar">
-    <div class="logo">Guess<span>ZA</span></div>
-    <div id="timer" style="
-        font-family:'Bebas Neue',sans-serif;
-        font-size:22px;
-        color:#fff;
-        background:rgba(0,0,0,0.55);
-        border:1px solid rgba(255,255,255,0.15);
-        border-radius:20px;
-        padding:6px 16px;
-        letter-spacing:1px;
-    ">5:00</div>
-    <div class="round-badge">Round <strong id="roundNum">1</strong> of 5</div>
-
+  <div class="brand">Guess<span>ZA</span></div>
+  <div id="timer">5:00</div>
+  <div class="pill">Round <strong id="roundNum">1</strong> of 5</div>
 </div>
-
 <div class="map-panel" id="mapPanel">
-    <div id="guessMap"></div>
-    <div class="map-footer">
-        <span class="map-hint-text" id="mapHint">Click map to pin</span>
-        <button class="guess-btn" id="guessBtn" disabled onclick="submitGuess()">Submit Guess</button>
-    </div>
+  <div id="guessMap"></div>
+  <div class="map-footer">
+    <span class="map-hint-text" id="mapHint">Click map to pin</span>
+    <button class="guess-btn" id="guessBtn" disabled onclick="submitGuess()">Submit</button>
+  </div>
 </div>
 
 <script>
-    const API = 'http://localhost:8080';
-    let guessMap, guessMarker, panorama;
-    let currentRoundId, currentRoundNum;
-    let guessLat = null, guessLng = null;
-    let timerInterval
-    let guessSubmitted = false
-    let timeLeft = 300
+  const API = 'http://localhost:8080';
+  let guessMap, guessMarker, panorama;
+  let currentRoundId, currentRoundNum;
+  let guessLat = null, guessLng = null;
+  let timerInterval, guessSubmitted = false, timeLeft = 300;
 
-    let visited_locations = [];
-    try {
-        const stored = JSON.parse(localStorage.getItem('visitedLocations'));
-        if (Array.isArray(stored)) visited_locations = stored;
-    } catch (e) {
-        visited_locations = [];
-    }
+  let visited_locations = [];
+  try{
+    const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+    if(Array.isArray(stored)) visited_locations = stored;
+  }catch(e){}
 
-    function startTimer() {
-        timerInterval = setInterval(() => {
-            timeLeft--;
+  function startTimer(){
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      const m = Math.floor(timeLeft / 60);
+      const s = timeLeft % 60;
+      document.getElementById('timer').textContent = m + ':' + (s < 10 ? '0' + s : s);
+      if(timeLeft <= 0){
+        clearInterval(timerInterval);
+        if(guessLat === null){ guessLat = 0; guessLng = 0; }
+        submitGuess();
+      }
+    }, 1000);
+  }
 
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            const formatted = minutes + ':' + (seconds < 10 ? '0' + seconds : seconds);
+  function initGoogleMaps(){
+    new Audio('/sound-newround.mp3').play().catch(()=>{});
+    guessMap = new google.maps.Map(document.getElementById('guessMap'), {
+      center:{lat:-28.5,lng:24.5}, zoom:5,
+      disableDefaultUI:true, zoomControl:true,
+      clickableIcons:false, mapTypeId:'roadmap',
+      draggableCursor:'crosshair',
+    });
+    guessMap.addListener('click', function(e){
+      guessLat = e.latLng.lat();
+      guessLng = e.latLng.lng();
+      if(guessMarker) guessMarker.setMap(null);
+      guessMarker = new google.maps.Marker({
+        position:{lat:guessLat,lng:guessLng}, map:guessMap, title:'Your guess'
+      });
+      document.getElementById('guessBtn').disabled = false;
+      document.getElementById('mapHint').textContent = 'Pin dropped';
+    });
+    const panel = document.getElementById('mapPanel');
+    panel.addEventListener('mouseenter', () => setTimeout(() => google.maps.event.trigger(guessMap,'resize'), 310));
+    panel.addEventListener('mouseleave', () => setTimeout(() => google.maps.event.trigger(guessMap,'resize'), 310));
+    loadRound();
+  }
 
-            document.getElementById('timer').textContent = formatted;
-
-            if(timeLeft <= 0) {
-                clearInterval(timerInterval);
-                if(guessLat === null) {
-                    guessLat = 0;
-                    guessLng = 0;
-                }
-                submitGuess();
-            }
-        }, 1000);
-    }
-
-    function initGoogleMaps() {
-        // Guess map — centered on SA
-        new Audio('/sound-newround.mp3').play();
-
-        guessMap = new google.maps.Map(document.getElementById('guessMap'), {
-            center: {lat: -28.5, lng: 24.5},
-            zoom: 5,
-            disableDefaultUI: true,
-            zoomControl: true,
-            clickableIcons: false,
-            mapTypeId: 'roadmap',
-            draggableCursor: 'crosshair'  // ← add here
-
+  function initStreetView(lat, lng){
+    const sv = new google.maps.StreetViewService();
+    sv.getPanorama({location:{lat,lng}, radius:500}, (data, status) => {
+      if(status === 'OK'){
+        panorama = new google.maps.StreetViewPanorama(document.getElementById('streetview'), {
+          position:data.location.latLng, addressControl:false,
+          showRoadLabels:false, fullscreenControl:false, motionTracking:false,
         });
+      }
+    });
+  }
 
-        guessMap.addListener('click', function(e) {
-            guessLat = e.latLng.lat();
-            guessLng = e.latLng.lng();
-            if(guessMarker) guessMarker.setMap(null);
-            guessMarker = new google.maps.Marker({
-                position: {lat: guessLat, lng: guessLng},
-                map: guessMap,
-                title: 'Your guess'
-            });
-            document.getElementById('guessBtn').disabled = false;
-            document.getElementById('mapHint').textContent = 'Pin dropped';
-        });
+  async function loadRound(){
+    const gameId = localStorage.getItem('gameId');
+    const res = await fetch(`${API}/api/games/${gameId}/current-round`);
+    const round = await res.json();
+    currentRoundId = round.roundId;
+    currentRoundNum = round.roundNumber;
+    initStreetView(round.latitude, round.longitude);
+    document.getElementById('roundNum').textContent = round.roundNumber;
+    startTimer();
+  }
 
-        // expand/collapse invalidate
-        const panel = document.getElementById('mapPanel');
-        panel.addEventListener('mouseenter', () => {
-            setTimeout(() => google.maps.event.trigger(guessMap, 'resize'), 310);
-        });
-        panel.addEventListener('mouseleave', () => {
-            setTimeout(() => google.maps.event.trigger(guessMap, 'resize'), 310);
-        });
-
-        loadRound();
+  async function submitGuess(){
+    if(guessSubmitted) return;
+    guessSubmitted = true;
+    document.getElementById('guessBtn').disabled = true;
+    clearInterval(timerInterval);
+    const res = await fetch(`${API}/api/rounds/${currentRoundId}/guess`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({guessLatitude: guessLat, guessLongitude: guessLng})
+    });
+    const guessResult = await res.json();
+    localStorage.setItem('lastResult', JSON.stringify(guessResult));
+    localStorage.setItem('guessLat', guessLat);
+    localStorage.setItem('guessLng', guessLng);
+    localStorage.setItem('gameOver', guessResult.gameOver);
+    localStorage.setItem('currentRoundNum', currentRoundNum);
+    localStorage.setItem('totalScore', guessResult.totalScore);
+    visited_locations.push(guessResult.locationName);
+    localStorage.setItem('visitedLocations', JSON.stringify(visited_locations));
+    if(guessResult.gameOver){
+      const user = localStorage.getItem('userId');
+      const userRes = await fetch(`${API}/api/users/${user}`);
+      const userResult = await userRes.json();
+      localStorage.setItem('highScore', userResult.highScore);
+      localStorage.setItem('gamesPlayed', userResult.gamesPlayed);
     }
-
-    function initStreetView(lat, lng) {
-        const sv = new google.maps.StreetViewService();
-        sv.getPanorama({location:{lat, lng}, radius:500}, (data, status) => {
-            if(status === 'OK') {
-                panorama = new google.maps.StreetViewPanorama(document.getElementById('streetview'), {
-                    position: data.location.latLng,
-                    addressControl: false,
-                    showRoadLabels: false,
-                    fullscreenControl: false,
-                    motionTracking: false,
-                });
-            }
-        });
-    }
-
-    async function loadRound() {
-        const gameId = localStorage.getItem('gameId');
-        // TODO: GET /api/games/{gameId}/current-round
-        const res = await fetch(`${API}/api/games/${gameId}/current-round`)
-        const round = await res.json();
-
-        currentRoundId = round.roundId;
-        currentRoundNum = round.roundNumber;
-
-        initStreetView(round.latitude, round.longitude);
-        document.getElementById('roundNum').textContent = round.roundNumber;
-
-        startTimer()
-
-    }
-
-    async function submitGuess() {
-
-
-
-        if(guessSubmitted) return;
-        guessSubmitted = true
-        document.getElementById('guessBtn').disabled = true;
-
-        clearInterval(timerInterval)
-        const res = await fetch(`${API}/api/rounds/${currentRoundId}/guess`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({guessLatitude: guessLat, guessLongitude: guessLng})
-        });
-
-        const guessResult = await res.json();
-        localStorage.setItem('lastResult', JSON.stringify(guessResult));
-        localStorage.setItem('guessLat', guessLat);
-        localStorage.setItem('guessLng', guessLng);
-        localStorage.setItem('gameOver', guessResult.gameOver);
-        localStorage.setItem('currentRoundNum', currentRoundNum);
-        localStorage.setItem('totalScore', guessResult.totalScore);
-
-        visited_locations.push(guessResult.locationName)
-
-        localStorage.setItem("visitedLocations" , JSON.stringify(visited_locations))
-
-
-        if(guessResult.gameOver) {
-            const user = localStorage.getItem('userId')
-            const userRes = await fetch(`${API}/api/users/${user}`)
-
-            const userResult = await userRes.json()
-            console.log(userResult)
-            localStorage.setItem("highScore", userResult.highScore)
-            localStorage.setItem("gamesPlayed",  userResult.gamesPlayed)
-        }
-
-        window.location.href = 'result.html';
-    }
+    window.location.href = 'result.html';
+  }
 </script>
-<script src="placeholder" async defer></script>
+<script src="placeholder-key" async defer></script>
 </body>
 </html>

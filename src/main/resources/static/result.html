@@ -1,179 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GuessZA — Result</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'DM Sans',sans-serif;background:#0d0d0d;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
-        .topbar{
-            display:flex;align-items:center;justify-content:space-between;
-            padding:12px 20px;
-            background:rgba(0,0,0,0.6);
-            border-bottom:1px solid rgba(255,255,255,0.07);
-            flex-shrink:0;
-        }
-        .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:1px;}
-        .logo span{color:#009B77;}
-        .content{display:flex;flex:1;min-height:0;}
-        #map{flex:1;}
-        .sidebar{
-            width:300px;
-            flex-shrink:0;
-            background:#161616;
-            border-left:1px solid rgba(255,255,255,0.08);
-            display:flex;
-            flex-direction:column;
-            padding:28px 24px;
-            gap:20px;
-        }
-        .location-name{
-            font-family:'Bebas Neue',sans-serif;
-            font-size:28px;
-            color:#fff;
-            letter-spacing:1px;
-            line-height:1.1;
-        }
-        .location-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;}
-        .divider{height:1px;background:rgba(255,255,255,0.08);}
-        .stat{display:flex;flex-direction:column;gap:4px;}
-        .stat-label{font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;}
-        .stat-value{font-size:32px;font-family:'Bebas Neue',sans-serif;letter-spacing:1px;}
-        .stat-value.green{color:#009B77;}
-        .stat-value.amber{color:#e8a020;}
-        .next-btn{
-            margin-top:auto;
-            background:#009B77;
-            color:#fff;
-            font-family:'DM Sans',sans-serif;
-            font-size:15px;
-            font-weight:500;
-            padding:14px;
-            border:none;
-            border-radius:10px;
-            cursor:pointer;
-            transition:background 0.2s;
-            text-align:center;
-            width:100%;
-        }
-        .next-btn:hover{background:#007a5e;}
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Result</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px;
+    background:#0a0f0d;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    flex-shrink:0;
+  }
+  .brand{font-weight:700;font-size:18px;color:#fff;letter-spacing:-0.3px;}
+  .brand span{color:#4ade80;}
+  .round-label{font-size:13px;color:rgba(255,255,255,0.5);}
+  .content{display:flex;flex:1;min-height:0;}
+  #map{flex:1;}
+  .sidebar{
+    width:340px;flex-shrink:0;
+    background:#141a17;
+    border-left:1px solid rgba(255,255,255,0.06);
+    display:flex;flex-direction:column;
+    padding:32px 28px;gap:24px;
+  }
+  .location-header{}
+  .province-badge{
+    display:inline-block;
+    background:rgba(74,222,128,0.12);
+    color:#4ade80;
+    font-size:11px;font-weight:600;
+    letter-spacing:1px;text-transform:uppercase;
+    padding:4px 10px;border-radius:100px;
+    margin-bottom:12px;
+  }
+  .location-name{font-size:26px;font-weight:700;letter-spacing:-0.6px;line-height:1.15;}
+  .location-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-top:6px;}
+  .divider{height:1px;background:rgba(255,255,255,0.06);}
+  .stat{display:flex;flex-direction:column;gap:6px;}
+  .stat-label{font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1.5px;}
+  .stat-value{font-size:32px;font-weight:700;letter-spacing:-0.8px;font-variant-numeric:tabular-nums;}
+  .stat-value.green{color:#4ade80;}
+  .stat-value.amber{color:#fbbf24;}
+  .next-btn{
+    margin-top:auto;
+    background:#4ade80;color:#0a2818;
+    font-family:inherit;font-size:15px;font-weight:600;
+    padding:14px;border:none;border-radius:8px;
+    cursor:pointer;transition:background 0.15s;
+    text-align:center;width:100%;
+  }
+  .next-btn:hover{background:#3ec972;}
+</style>
 </head>
 <body>
 <div class="topbar">
-    <div class="logo">Guess<span>ZA</span></div>
-    <div style="font-size:13px;color:rgba(255,255,255,0.4);">Round <span id="roundNum">—</span> result</div>
-    <div style="width:80px;"></div>
+  <div class="brand">Guess<span>ZA</span></div>
+  <div class="round-label">Round <span id="roundNum">—</span> result</div>
+  <div style="width:80px;"></div>
 </div>
 <div class="content">
-    <div id="map"></div>
-    <div class="sidebar">
-        <div>
-            <div class="location-name" id="locationName">—</div>
-            <div class="location-sub" id="locationSub">—</div>
-        </div>
-        <div class="divider"></div>
-        <div class="stat">
-            <span class="stat-label">Distance off</span>
-            <span class="stat-value amber" id="distance">—</span>
-        </div>
-        <div class="stat">
-            <span class="stat-label">Score</span>
-            <span class="stat-value green" id="score">—</span>
-        </div>
-        <div class="divider"></div>
-        <button class="next-btn" onclick="nextRound()" id="nextBtn">Next Round →</button>
+  <div id="map"></div>
+  <div class="sidebar">
+    <div class="location-header">
+      <div class="province-badge" id="provinceBadge" style="display:none;"></div>
+      <div class="location-name" id="locationName">—</div>
+      <div class="location-sub" id="locationSub">—</div>
     </div>
+    <div class="divider"></div>
+    <div class="stat">
+      <span class="stat-label">Distance off</span>
+      <span class="stat-value amber" id="distance">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">Score</span>
+      <span class="stat-value green" id="score">—</span>
+    </div>
+    <button class="next-btn" onclick="nextRound()" id="nextBtn">Next Round →</button>
+  </div>
 </div>
 
 <script>
-    function formatDistance(metres) {
-        if(metres >= 1000) return (metres / 1000).toFixed(1) + ' km';
-        return metres + ' m';
+  function formatDistance(m){
+    if(m >= 1000) return (m/1000).toFixed(1) + ' km';
+    return m + ' m';
+  }
+  function initMap(){
+    new Audio('/sound-pointcount.mp3').play().catch(()=>{});
+    const result   = JSON.parse(localStorage.getItem('lastResult') || '{}');
+    const guessLat = parseFloat(localStorage.getItem('guessLat'));
+    const guessLng = parseFloat(localStorage.getItem('guessLng'));
+    const roundNum = localStorage.getItem('currentRoundNum') || '?';
+
+    document.getElementById('roundNum').textContent      = roundNum;
+    document.getElementById('locationName').textContent  = result.locationName || '—';
+    document.getElementById('locationSub').textContent   = (result.locationCity || '') + (result.locationCity && result.locationProvince ? ' · ' : '') + (result.locationProvince || '');
+    document.getElementById('distance').textContent      = formatDistance(result.distanceMeters || 0);
+    document.getElementById('score').textContent         = (result.score || 0).toLocaleString();
+
+    if(result.locationProvince){
+      const badge = document.getElementById('provinceBadge');
+      badge.textContent = result.locationProvince;
+      badge.style.display = 'inline-block';
     }
 
-    function initMap() {
-        new Audio('/sound-pointcount.mp3').play();
+    const actualPos = {lat: result.locationLatitude, lng: result.locationLongitude};
+    const guessPos  = {lat: guessLat, lng: guessLng};
 
-        const result   = JSON.parse(localStorage.getItem('lastResult') || '{}');
-        const guessLat = parseFloat(localStorage.getItem('guessLat'));
-        const guessLng = parseFloat(localStorage.getItem('guessLng'));
-        const roundNum = localStorage.getItem('currentRoundNum') || '?';
+    const map = new google.maps.Map(document.getElementById('map'), {
+      zoom:5, center:actualPos,
+      disableDefaultUI:true, zoomControl:true, mapTypeId:'roadmap',
+    });
 
-        document.getElementById('roundNum').textContent      = roundNum;
-        document.getElementById('locationName').textContent  = result.locationName || '—';
-        document.getElementById('locationSub').textContent   = (result.locationCity || '') + ' · ' + (result.locationProvince || '');
-        document.getElementById('distance').textContent      = formatDistance(result.distanceMeters || 0);
-        document.getElementById('score').textContent         = (result.score || 0).toLocaleString();
+    new google.maps.Marker({
+      position:actualPos, map, title:'Actual location',
+      icon:{path:google.maps.SymbolPath.CIRCLE, scale:10, fillColor:'#4ade80', fillOpacity:1, strokeColor:'#0a2818', strokeWeight:2}
+    });
+    new google.maps.Marker({
+      position:guessPos, map, title:'Your guess',
+      icon:{path:google.maps.SymbolPath.CIRCLE, scale:10, fillColor:'#f87171', fillOpacity:1, strokeColor:'#fff', strokeWeight:2}
+    });
+    new google.maps.Polyline({
+      path:[actualPos, guessPos], map,
+      strokeColor:'#fff', strokeOpacity:0.6, strokeWeight:2,
+    });
 
-        const actualPos = {lat: result.locationLatitude, lng: result.locationLongitude};
-        const guessPos  = {lat: guessLat, lng: guessLng};
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(actualPos); bounds.extend(guessPos);
+    map.fitBounds(bounds, {top:40, right:40, bottom:40, left:40});
 
-        const map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 5,
-            center: actualPos,
-            disableDefaultUI: true,
-            zoomControl: true,
-            mapTypeId: 'roadmap'
-        });
-
-        // Actual location — green marker
-        new google.maps.Marker({
-            position: actualPos,
-            map,
-            title: 'Actual location',
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#009B77',
-                fillOpacity: 1,
-                strokeColor: '#000000',
-                strokeWeight: 1
-            }
-        });
-
-        // Guess — red marker
-        new google.maps.Marker({
-            position: guessPos,
-            map,
-            title: 'Your guess',
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#e05252',
-                fillOpacity: 1,
-                strokeColor: '#fff',
-                strokeWeight: 2
-            }
-        });
-
-        new google.maps.Polyline({
-            path: [actualPos, guessPos],
-            map,
-            strokeColor: '#000000',
-            strokeOpacity: 1,
-            strokeWeight: 2
-        });
-
-        // Fit both markers in view
-        const bounds = new google.maps.LatLngBounds();
-        bounds.extend(actualPos);
-        bounds.extend(guessPos);
-        map.fitBounds(bounds, {top:40, right:40, bottom:40, left:40});
-
-        // Update next button label if game over
-        if(localStorage.getItem('gameOver') === 'true') {
-            document.getElementById('nextBtn').textContent = 'See Final Score →';
-        }
+    if(localStorage.getItem('gameOver') === 'true'){
+      document.getElementById('nextBtn').textContent = 'See Final Score →';
     }
-
-    async function nextRound() {
-        const gameOver = localStorage.getItem('gameOver') === 'true';
-        window.location.href = gameOver ? 'end.html' : 'game.html';
-    }
+  }
+  async function nextRound(){
+    const gameOver = localStorage.getItem('gameOver') === 'true';
+    window.location.href = gameOver ? 'end.html' : 'game.html';
+  }
 </script>
-<script src="placeholder" async defer></script>
+<script src="placeholder-key" async defer></script>
 </body>
 </html>

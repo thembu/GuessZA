@@ -1,145 +1,159 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GuessZA — Game Over</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{
-            font-family:'DM Sans',sans-serif;
-            height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#0d0d0d;
-        }
-        .card{
-            background:#161616;
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:20px;
-            padding:52px 48px;
-            width:90%;
-            max-width:420px;
-            text-align:center;
-        }
-        .flag{font-size:48px;margin-bottom:20px;}
-        h2{
-            font-family:'Bebas Neue',sans-serif;
-            font-size:36px;
-            color:#fff;
-            letter-spacing:1px;
-            margin-bottom:8px;
-        }
-        .sub{color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:36px;}
-        .score-box{
-            background:rgba(0,155,119,0.1);
-            border:1px solid rgba(0,155,119,0.3);
-            border-radius:14px;
-            padding:28px;
-            margin-bottom:12px;
-        }
-        .score-label{font-size:12px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-        .score-value{
-            font-family:'Bebas Neue',sans-serif;
-            font-size:64px;
-            color:#009B77;
-            letter-spacing:2px;
-            line-height:1;
-        }
-        .score-max{font-size:13px;color:rgba(255,255,255,0.25);margin-top:6px;}
-        .high-score{
-            font-size:13px;
-            color:rgba(255,255,255,0.35);
-            margin-bottom:32px;
-        }
-        .high-score span{color:#e8a020;}
-        .play-btn{
-            display:block;
-            width:100%;
-            background:#009B77;
-            color:#fff;
-            font-family:'DM Sans',sans-serif;
-            font-size:15px;
-            font-weight:500;
-            padding:15px;
-            border:none;
-            border-radius:10px;
-            cursor:pointer;
-            transition:background 0.2s;
-            margin-bottom:12px;
-        }
-        .play-btn:hover{background:#007a5e;}
-        .home-link{
-            font-size:13px;
-            color:rgba(255,255,255,0.3);
-            text-decoration:none;
-            transition:color 0.2s;
-        }
-        .home-link:hover{color:rgba(255,255,255,0.6);}
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Game Over</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;height:100vh;overflow:hidden;position:relative;}
+  /* ============================================================
+     END SCREEN BACKGROUND — replace url() below.
+     Recommended: subtle SA landscape, will be dimmed heavily.
+     File location: src/main/resources/static/images/end-bg.jpg
+     ============================================================ */
+  .bg{
+    position:fixed;inset:0;
+    background:#0f1613 url('images/end-bg.jpg') center/cover no-repeat; /* IMAGE HERE */
+    z-index:0;
+    filter:brightness(0.3);
+  }
+  .wrapper{
+    position:relative;z-index:2;
+    height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:24px;
+  }
+  .card{
+    background:rgba(20,26,23,0.85);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:48px 44px;
+    width:100%;max-width:440px;
+    text-align:center;
+  }
+  h2{font-size:32px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:14px;margin-bottom:32px;}
+  .score-box{
+    background:rgba(74,222,128,0.08);
+    border:1px solid rgba(74,222,128,0.25);
+    border-radius:14px;
+    padding:28px;margin-bottom:12px;
+  }
+  .score-label{font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;}
+  .score-value{font-size:56px;font-weight:800;color:#4ade80;letter-spacing:-2px;line-height:1;font-variant-numeric:tabular-nums;}
+  .score-max{font-size:12px;color:rgba(255,255,255,0.35);margin-top:8px;}
+  .high-score{font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:28px;}
+  .high-score span{color:#fbbf24;font-weight:600;}
+  .btn{
+    display:block;width:100%;
+    font-family:inherit;font-size:14px;font-weight:600;
+    padding:13px;border-radius:8px;cursor:pointer;
+    transition:background 0.15s,border-color 0.15s;
+    text-align:center;text-decoration:none;
+    margin-bottom:10px;
+    border:1px solid transparent;
+  }
+  .btn-primary{background:#4ade80;color:#0a2818;border:none;}
+  .btn-primary:hover{background:#3ec972;}
+  .btn-secondary{
+    background:transparent;color:#fff;
+    border-color:rgba(255,255,255,0.15);
+  }
+  .btn-secondary:hover{border-color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.03);}
+  .home-link{
+    display:inline-block;margin-top:16px;
+    font-size:13px;color:rgba(255,255,255,0.4);
+    text-decoration:none;transition:color 0.15s;
+  }
+  .home-link:hover{color:#fff;}
+</style>
 </head>
 <body>
-<div class="card">
-    <div class="flag">🏁</div>
+<div class="bg"></div>
+<div class="wrapper">
+  <div class="card">
     <h2>Game Over</h2>
     <p class="sub">Here's how you did, <span id="nickname">player</span></p>
     <div class="score-box">
-        <div class="score-label">Total Score</div>
-        <div class="score-value" id="totalScore">0</div>
-        <div class="score-max">out of 25,000</div>
+      <div class="score-label">Total Score</div>
+      <div class="score-value" id="totalScore">0</div>
+      <div class="score-max">out of 25,000</div>
     </div>
     <p class="high-score">Your best: <span id="highScore">—</span></p>
-    <button class="play-btn" onclick="playAgain()">Play Again</button>
+    <button class="btn btn-primary" onclick="playAgain()" id="playAgainBtn">Play Again</button>
+    <a class="btn btn-secondary" href="mode.html">Choose Another Mode</a>
     <a href="index.html" class="home-link">Back to home</a>
+  </div>
 </div>
 <script>
-    const API = 'http://localhost:8080';
+  const API = 'http://localhost:8080';
 
+  let visited_locations = [];
+  try{
+    const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+    if(Array.isArray(stored)) visited_locations = stored;
+  }catch(e){}
 
-    let visited_locations = [];
-    try {
-        const stored = JSON.parse(localStorage.getItem('visitedLocations'));
-        if (Array.isArray(stored)) visited_locations = stored;
-    } catch(e) {}
+  async function loadEndScreen(){
+    new Audio('/sound-pointcount.mp3').play().catch(()=>{});
+    const totalScore = localStorage.getItem('totalScore') || '0';
+    const nickname = localStorage.getItem('nickname') || 'player';
+    const userId = localStorage.getItem('userId');
+    document.getElementById('totalScore').textContent = parseInt(totalScore).toLocaleString();
+    document.getElementById('nickname').textContent = nickname;
 
-    async function loadEndScreen() {
-        new Audio('/sound-pointcount.mp3').play();
-        const totalScore = localStorage.getItem('totalScore') || '0';
-        const nickname = localStorage.getItem('nickname') || 'player';
-        const userId = localStorage.getItem('userId');
-
-        document.getElementById('totalScore').textContent = parseInt(totalScore).toLocaleString();
-        document.getElementById('nickname').textContent = nickname;
-
-        if(userId) {
-            try {
-                const res = await fetch(`${API}/api/users/${userId}`);
-                const user = await res.json();
-                document.getElementById('highScore').textContent = (user.highScore || 0).toLocaleString();
-            } catch(e) {}
-        }
+    // Update Play Again button label with the mode context
+    const lastMode = localStorage.getItem('lastMode');
+    const btn = document.getElementById('playAgainBtn');
+    if(lastMode === 'province'){
+      try{
+        const p = JSON.parse(localStorage.getItem('lastProvince'));
+        if(p && p.display) btn.textContent = `Play Again in ${p.display}`;
+      }catch(e){}
     }
 
-    async function playAgain() {
-        const userId = localStorage.getItem('userId');
-        if(!userId) { window.location.href = 'index.html'; return; }
-        try {
-            const res = await fetch(`${API}/api/games`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: userId , visitedLocations: visited_locations})
-            });
-            const game = await res.json();
-            localStorage.setItem('gameId', game.id);
-            window.location.href = 'game.html';
-        } catch(e) {
-            window.location.href = 'index.html';
-        }
+    if(userId){
+      try{
+        const res = await fetch(`${API}/api/users/${userId}`);
+        const user = await res.json();
+        document.getElementById('highScore').textContent = (user.highScore || 0).toLocaleString();
+      }catch(e){}
     }
+  }
 
-    loadEndScreen();
+  async function playAgain(){
+    const userId = localStorage.getItem('userId');
+    if(!userId){ window.location.href = 'index.html'; return; }
+    const lastMode = localStorage.getItem('lastMode');
+    try{
+      let res;
+      if(lastMode === 'province'){
+        const p = JSON.parse(localStorage.getItem('lastProvince'));
+        if(!p || !p.value){ window.location.href = 'mode.html'; return; }
+        res = await fetch(`${API}/api/games/province`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ userId, visitedLocations: visited_locations, province: p.value })
+        });
+      }else{
+        res = await fetch(`${API}/api/games`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ userId, visitedLocations: visited_locations, province: null })
+        });
+      }
+      if(!res.ok) throw new Error('game create failed');
+      const game = await res.json();
+      localStorage.setItem('gameId', game.id);
+      window.location.href = 'game.html';
+    }catch(e){
+      window.location.href = 'mode.html';
+    }
+  }
+
+  loadEndScreen();
 </script>
 </body>
 </html>

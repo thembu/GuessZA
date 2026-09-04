@@ -1,169 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>GuessZA — Who are you?</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{
-            font-family:'DM Sans',sans-serif;
-            height:100vh;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            background:#0d0d0d;
-        }
-        .card{
-            background:#161616;
-            border:1px solid rgba(255,255,255,0.08);
-            border-radius:20px;
-            padding:52px 48px;
-            width:90%;
-            max-width:400px;
-            text-align:center;
-        }
-        .back{
-            display:inline-block;
-            color:rgba(255,255,255,0.3);
-            font-size:13px;
-            text-decoration:none;
-            margin-bottom:32px;
-            transition:color 0.2s;
-        }
-        .back:hover{color:rgba(255,255,255,0.6);}
-        h2{
-            font-family:'Bebas Neue',sans-serif;
-            font-size:36px;
-            color:#fff;
-            letter-spacing:1px;
-            margin-bottom:8px;
-        }
-        .sub{
-            color:rgba(255,255,255,0.4);
-            font-size:14px;
-            margin-bottom:32px;
-        }
-        input{
-            width:100%;
-            background:rgba(255,255,255,0.06);
-            border:1px solid rgba(255,255,255,0.12);
-            border-radius:10px;
-            padding:14px 16px;
-            color:#fff;
-            font-family:'DM Sans',sans-serif;
-            font-size:16px;
-            outline:none;
-            transition:border 0.2s;
-            margin-bottom:16px;
-        }
-        input::placeholder{color:rgba(255,255,255,0.25);}
-        input:focus{border-color:#009B77;}
-        .hint{
-            font-size:12px;
-            color:rgba(255,255,255,0.25);
-            margin-bottom:28px;
-            text-align:left;
-        }
-        button{
-            width:100%;
-            background:#009B77;
-            color:#fff;
-            font-family:'DM Sans',sans-serif;
-            font-size:15px;
-            font-weight:500;
-            padding:15px;
-            border:none;
-            border-radius:10px;
-            cursor:pointer;
-            transition:background 0.2s,opacity 0.2s;
-        }
-        button:hover{background:#007a5e;}
-        button:disabled{opacity:0.4;cursor:not-allowed;}
-        .error{
-            color:#e05252;
-            font-size:13px;
-            margin-top:12px;
-            display:none;
-        }
-    </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Who are you?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;height:100vh;overflow:hidden;display:flex;}
+  /* ============================================================
+     NICKNAME HERO IMAGE — replace url() below.
+     Recommended: portrait or square-ish SA scene (street market, beach, township, mountain).
+     File location: src/main/resources/static/images/nickname-hero.jpg
+     ============================================================ */
+  .hero{
+    flex:1;
+    background:#0a0f0d url('images/nickname-hero.jpg') center/cover no-repeat; /* IMAGE HERE */
+    position:relative;
+  }
+  .hero::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(to right, transparent 0%, rgba(15,22,19,0.4) 70%, #0f1613 100%);
+  }
+  .hero-brand{
+    position:absolute;top:24px;left:40px;z-index:2;
+    font-weight:700;font-size:18px;letter-spacing:-0.3px;color:#fff;
+  }
+  .hero-brand span{color:#4ade80;}
+  .form-side{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:40px;position:relative;
+  }
+  .back{
+    position:absolute;top:24px;right:40px;
+    color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;
+  }
+  .back:hover{color:#fff;}
+  .card{width:100%;max-width:400px;}
+  h1{font-size:36px;font-weight:700;letter-spacing:-1px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:32px;line-height:1.5;}
+  input{
+    width:100%;background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;
+    color:#fff;font-family:inherit;font-size:15px;outline:none;
+    transition:border 0.15s,background 0.15s;margin-bottom:12px;
+  }
+  input::placeholder{color:rgba(255,255,255,0.3);}
+  input:focus{border-color:#4ade80;background:rgba(74,222,128,0.05);}
+  .hint{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:28px;}
+  button{
+    width:100%;background:#4ade80;color:#0a2818;
+    font-family:inherit;font-size:15px;font-weight:600;
+    padding:14px;border:none;border-radius:8px;cursor:pointer;
+    transition:background 0.15s,opacity 0.15s;
+  }
+  button:hover{background:#3ec972;}
+  button:disabled{opacity:0.4;cursor:not-allowed;}
+  .error{color:#f87171;font-size:13px;margin-top:12px;display:none;}
+  @media (max-width: 768px){
+    body{flex-direction:column;overflow-y:auto;height:auto;min-height:100vh;}
+    .hero{height:200px;flex:none;}
+    .form-side{padding:32px 24px;}
+  }
+</style>
 </head>
 <body>
-<div class="card">
-    <a href="index.html" class="back">← Back</a>
-    <h2>What's your name?</h2>
-    <p class="sub">Pick a nickname to get started</p>
+<div class="hero"><div class="hero-brand">Guess<span>ZA</span></div></div>
+<div class="form-side">
+  <a href="index.html" class="back">← Back</a>
+  <div class="card">
+    <h1>Pick a nickname</h1>
+    <p class="sub">This is how you'll show up on your scoreboard.</p>
     <input id="nickname" type="text" placeholder="e.g. Sipho, Thabo, Amahle" maxlength="20" autocomplete="off"/>
     <p class="hint">3–20 characters · letters, numbers, underscores only</p>
-    <button id="startBtn" onclick="startGame()">Start Playing</button>
+    <button id="startBtn" onclick="createUser()">Continue</button>
     <p class="error" id="errorMsg"></p>
+  </div>
 </div>
 <script>
-    const API = 'http://localhost:8080';
-
-    let visited_locations = [];
-    try {
-        const stored = JSON.parse(localStorage.getItem('visitedLocations'));
-        if (Array.isArray(stored)) visited_locations = stored;
-    } catch(e) {}
-
-    document.getElementById('nickname').addEventListener('keydown', e => {
-        if(e.key === 'Enter') startGame();
-    });
-
-    async function startGame() {
-        const nickname = document.getElementById('nickname').value.trim();
-        const btn = document.getElementById('startBtn');
-        const err = document.getElementById('errorMsg');
-
-        if(!nickname || nickname.length < 3) {
-            err.textContent = 'Nickname must be at least 3 characters.';
-            err.style.display = 'block';
-            return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'Loading...';
-        err.style.display = 'none';
-
-        try {
-
-            // TODO: POST /api/users, save userId, POST /api/games, save gameId, navigate to game.html
-           const res =  await  fetch(`${API}/api/users`, {
-                method : "POST",
-                headers: {
-                    "Content-Type": "application/json", // Tell the server you're sending JSON
-                },
-                body : JSON.stringify({ nickname: nickname })
-            })
-
-            const user = await res.json();
-
-
-           localStorage.setItem("userId" , user.id)
-           localStorage.setItem("nickname", user.nickname)
-           localStorage.setItem("highScore", user.highScore)
-           localStorage.setItem("gamesPlayed", user.gamesPlayed)
-
-
-            const gameRes = await fetch(`${API}/api/games`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.id , visitedLocations: visited_locations, province : null})
-            });
-            const game = await gameRes.json();
-            localStorage.setItem('gameId', game.id);
-            window.location.href = 'game.html';
-
-
-        } catch(e) {
-            err.textContent = 'Something went wrong. Is the server running?';
-            err.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = 'Start Playing';
-        }
+  const API = 'http://localhost:8080';
+  document.getElementById('nickname').addEventListener('keydown', e => {
+    if(e.key === 'Enter') createUser();
+  });
+  async function createUser(){
+    const nickname = document.getElementById('nickname').value.trim();
+    const btn = document.getElementById('startBtn');
+    const err = document.getElementById('errorMsg');
+    if(!nickname || nickname.length < 3){
+      err.textContent = 'Nickname must be at least 3 characters.';
+      err.style.display = 'block';
+      return;
     }
+    btn.disabled = true; btn.textContent = 'Loading...'; err.style.display = 'none';
+    try{
+      const res = await fetch(`${API}/api/users`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ nickname })
+      });
+      if(!res.ok) throw new Error('user create failed');
+      const user = await res.json();
+      localStorage.setItem('userId', user.id);
+      localStorage.setItem('nickname', user.nickname);
+      localStorage.setItem('highScore', user.highScore);
+      localStorage.setItem('gamesPlayed', user.gamesPlayed);
+      window.location.href = 'mode.html';
+    }catch(e){
+      err.textContent = 'Something went wrong. Is the server running?';
+      err.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Continue';
+    }
+  }
 </script>
 </body>
 </html>
