@@ -50,6 +50,7 @@ public class RoundService {
 
         if(round.getAnsweredAt() != null) throw  new RoundAlreadyAnswered(roundId);
 
+        //verify round has game and user attached to it
         Game game = gameRepository.findById(round.getGame().getId()).orElseThrow(() -> new GameNotFoundException(round.getGame().getId()));
 
         User user  = userRepository.findById(game.getUser().getId()).orElseThrow(() -> new UserNotFoundException(game.getUser().getId()));
@@ -69,8 +70,6 @@ public class RoundService {
         round.setScore(score.score());
 
         roundRepository.save(round);
-
-
        //check if game is complete
 
         List<Round> allRounds = roundRepository.findByGame(game);

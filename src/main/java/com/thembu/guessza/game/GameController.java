@@ -26,7 +26,13 @@ public class GameController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public GameResponse createGame(@RequestBody CreateGameRequest request) {
-        return  gameService.createGame(request);
+        return  gameService.createGame(request, "Standard");
+    }
+
+    @PostMapping("/province")
+    @ResponseStatus(HttpStatus.CREATED)
+    public  GameResponse createProvinceGame(@RequestBody CreateGameRequest request){
+        return  gameService.createGame(request , "Province");
     }
 
     @GetMapping("/{id}/current-round")

@@ -150,7 +150,7 @@
             const gameRes = await fetch(`${API}/api/games`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId: user.id , visitedLocations: visited_locations})
+                body: JSON.stringify({ userId: user.id , visitedLocations: visited_locations, province : null})
             });
             const game = await gameRes.json();
             localStorage.setItem('gameId', game.id);

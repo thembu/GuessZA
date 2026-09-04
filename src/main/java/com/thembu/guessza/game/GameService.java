@@ -14,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,16 +24,18 @@ public class GameService {
     private  final UserRepository userRepository;
     private  final RoundRepository roundRepository;
     private  final LocationRepository locationRepository;
+    private final  LocationService locationService;
 
-    public GameService(GameRepository gameRepository, UserRepository userRepository, RoundRepository roundRepository, LocationRepository locationRepository) {
+    public GameService(GameRepository gameRepository, UserRepository userRepository, RoundRepository roundRepository, LocationRepository locationRepository, LocationService locationService) {
         this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.roundRepository = roundRepository;
         this.locationRepository = locationRepository;
+        this.locationService = locationService;
     }
 
     @Transactional
-    public GameResponse createGame(CreateGameRequest request) {
+    public GameResponse createGame(CreateGameRequest request, String type) {
 
         //create new instance of game entity, add user/player for that game and save it
         Game game = new Game();
@@ -46,7 +49,17 @@ public class GameService {
 
         List<String> visitedLocations = request.visitedLocations().isEmpty() ? List.of("") : request.visitedLocations();
 
-        List<Location> locations = locationRepository.findRandomActiveLocations(visitedLocations , 5);
+
+        List<Location> locations =  new ArrayList<>();
+
+        if(type.equals("Standard")) {
+
+            locations = locationService.getRandomLocations(visitedLocations, 5);
+
+        } else if (type.equals("Province")){
+            locations = locationService.getLocationByProvince(visitedLocations, request.province() , 5 );
+        }
+
         int  count = 1;
         for (Location location : locations) {
 
