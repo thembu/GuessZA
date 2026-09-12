@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Choose mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;min-height:100vh;}
+  .topnav{display:flex;justify-content:space-between;align-items:center;padding:24px 40px;}
+  .brand{font-weight:700;font-size:18px;letter-spacing:-0.3px;}
+  .brand span{color:#4ade80;}
+  .back{color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;}
+  .back:hover{color:#fff;}
+  .container{max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
+  h1{font-size:40px;font-weight:700;letter-spacing:-1.2px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:40px;}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  .mode-card{
+    position:relative;
+    border-radius:16px;overflow:hidden;
+    cursor:pointer;color:inherit;font-family:inherit;
+    padding:0;border:none;background:none;text-decoration:none;
+    height:360px;display:block;
+    transition:transform 0.2s;
+  }
+  .mode-card:hover{transform:translateY(-4px);}
+  .mode-card:hover .mode-img{transform:scale(1.05);}
+  .mode-img{
+    position:absolute;inset:0;
+    background:#1a2420 center/cover no-repeat;
+    transition:transform 0.4s;
+  }
+  /* ============================================================
+     MODE CARD IMAGES — replace url() below.
+     Standard: wide SA landscape (mountains, savannah, cityscape)
+     Province: aerial/map-style image, or SA satellite view
+     File location: src/main/resources/static/images/
+     ============================================================ */
+  .mode-standard{background-image:url('images/mode-standard.jpg');} /* IMAGE HERE */
+  .mode-province{background-image:url('images/mode-province.jpg');} /* IMAGE HERE */
+
+  .mode-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top, rgba(10,15,13,0.95) 0%, rgba(10,15,13,0.4) 60%, rgba(10,15,13,0.2) 100%);
+  }
+  .mode-content{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:32px;text-align:left;
+  }
+  .mode-name{font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px;}
+  .mode-desc{color:rgba(255,255,255,0.75);font-size:14px;line-height:1.5;margin-bottom:18px;max-width:320px;}
+  .mode-cta{color:#4ade80;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  @media (max-width: 700px){
+    .grid{grid-template-columns:1fr;}
+    .mode-card{height:280px;}
+  }
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="brand">Guess<span>ZA</span></div>
+  <a href="index.html" class="back">← Back</a>
+</div>
+<div class="container">
+  <h1>Choose your mode</h1>
+  <p class="sub">Play across all of South Africa, or narrow it down to one province.</p>
+  <div class="grid">
+    <button class="mode-card" onclick="startStandard()">
+      <div class="mode-img mode-standard"></div>
+      <div class="mode-overlay"></div>
+      <div class="mode-content">
+        <div class="mode-name">Standard</div>
+        <p class="mode-desc">Five locations pulled from anywhere in South Africa. Full difficulty, full country.</p>
+        <div class="mode-cta">Start game <span>→</span></div>
+      </div>
+    </button>
+    <a class="mode-card" href="provinces.html">
+      <div class="mode-img mode-province"></div>
+      <div class="mode-overlay"></div>
+      <div class="mode-content">
+        <div class="mode-name">Province</div>
+        <p class="mode-desc">Pick one of nine provinces. All five rounds stay within its borders.</p>
+        <div class="mode-cta">Choose province <span>→</span></div>
+      </div>
+    </a>
+  </div>
+</div>
+<script>
+  const API = 'http://localhost:8080';
+  let visited_locations = [];
+  try{
+    const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+    if(Array.isArray(stored)) visited_locations = stored;
+  }catch(e){}
+
+  async function startStandard(){
+    const userId = localStorage.getItem('userId');
+    if(!userId){ window.location.href = 'nickname.html'; return; }
+    try{
+      const res = await fetch(`${API}/api/games`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ userId, province: null })
+      });
+      if(!res.ok) throw new Error('game create failed');
+      const game = await res.json();
+      if(game.locationsExhausted){
+      alert("You've explored every location in this mode! we need to reload them now click again");
+      window.location.href = 'mode.html';
+      return;
+    }
+
+      localStorage.setItem('gameId', game.id);
+      localStorage.setItem('lastMode', 'standard');
+      localStorage.removeItem('lastProvince');
+      window.location.href = 'game.html';
+    }catch(e){ alert('Could not start game. Is the server running?'); }
+  }
+</script>
+</body>
+</html>

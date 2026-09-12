@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Pick a province</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;min-height:100vh;}
+  .topnav{display:flex;justify-content:space-between;align-items:center;padding:24px 40px;}
+  .brand{font-weight:700;font-size:18px;letter-spacing:-0.3px;}
+  .brand span{color:#4ade80;}
+  .back{color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;}
+  .back:hover{color:#fff;}
+  .container{max-width:1200px;margin:0 auto;padding:40px 24px 80px;}
+  h1{font-size:40px;font-weight:700;letter-spacing:-1.2px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:40px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .province-card{
+    position:relative;
+    border-radius:14px;overflow:hidden;
+    cursor:pointer;color:inherit;font-family:inherit;
+    padding:0;border:none;background:none;text-decoration:none;
+    height:220px;display:block;
+    transition:transform 0.2s;
+  }
+  .province-card:hover{transform:translateY(-3px);}
+  .province-card:hover .province-img{transform:scale(1.06);}
+  .province-img{
+    position:absolute;inset:0;
+    background:#1a2420 center/cover no-repeat;
+    transition:transform 0.4s;
+  }
+  .province-overlay{
+    position:absolute;inset:0;
+    background:linear-gradient(to top, rgba(10,15,13,0.95) 0%, rgba(10,15,13,0.3) 50%, rgba(10,15,13,0.1) 100%);
+  }
+  .province-content{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:20px 22px;text-align:left;
+  }
+  .province-name{font-size:20px;font-weight:700;letter-spacing:-0.4px;}
+  .province-hint{color:rgba(255,255,255,0.6);font-size:12px;margin-top:4px;}
+  .loading-overlay{
+    position:fixed;inset:0;background:rgba(15,22,19,0.85);
+    display:none;align-items:center;justify-content:center;
+    z-index:100;font-size:14px;color:rgba(255,255,255,0.7);
+  }
+  .loading-overlay.show{display:flex;}
+  @media (max-width: 850px){ .grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width: 500px){ .grid{grid-template-columns:1fr;} .province-card{height:180px;} }
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="brand">Guess<span>ZA</span></div>
+  <a href="mode.html" class="back">← Back</a>
+</div>
+<div class="container">
+  <h1>Pick a province</h1>
+  <p class="sub">All five rounds will drop you somewhere inside it.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="loading-overlay" id="loading">Starting game…</div>
+
+<script>
+  const API = 'http://localhost:8080';
+
+  // ============================================================
+  // PROVINCE IMAGES — replace each `image` path below.
+  // File location: src/main/resources/static/images/provinces/<slug>.jpg
+  // Landscape orientation, roughly 4:3 or 16:10. Under ~200KB each.
+  // ============================================================
+  const PROVINCES = [
+    { value: 'GAUTENG',       display: 'Gauteng',       image: 'images/provinces/gauteng.jpg' },       /* IMAGE HERE */
+    { value: 'WESTERN_CAPE',  display: 'Western Cape',  image: 'images/provinces/western-cape.jpg' },  /* IMAGE HERE */
+    { value: 'KWAZULU_NATAL', display: 'KwaZulu-Natal', image: 'images/provinces/kwazulu-natal.jpg' }, /* IMAGE HERE */
+    { value: 'EASTERN_CAPE',  display: 'Eastern Cape',  image: 'images/provinces/eastern-cape.jpg' },  /* IMAGE HERE */
+    { value: 'FREE_STATE',    display: 'Free State',    image: 'images/provinces/free-state.jpg' },    /* IMAGE HERE */
+    { value: 'MPUMALANGA',    display: 'Mpumalanga',    image: 'images/provinces/mpumalanga.jpg' },    /* IMAGE HERE */
+    { value: 'LIMPOPO',       display: 'Limpopo',       image: 'images/provinces/limpopo.jpg' },       /* IMAGE HERE */
+    { value: 'NORTH_WEST',    display: 'North West',    image: 'images/provinces/north-west.jpg' },    /* IMAGE HERE */
+    { value: 'NORTHERN_CAPE', display: 'Northern Cape', image: 'images/provinces/northern-cape.jpg' }, /* IMAGE HERE */
+  ];
+
+  let visited_locations = [];
+  try{
+    const stored = JSON.parse(localStorage.getItem('visitedLocations'));
+    if(Array.isArray(stored)) visited_locations = stored;
+  }catch(e){}
+
+  const grid = document.getElementById('grid');
+  PROVINCES.forEach(p => {
+    const card = document.createElement('a');
+    card.className = 'province-card';
+    card.href = '#';
+    card.innerHTML = `
+      <div class="province-img" style="background-image:url('${p.image}');"></div>
+      <div class="province-overlay"></div>
+      <div class="province-content">
+        <div class="province-name">${p.display}</div>
+        <div class="province-hint">5 rounds inside ${p.display}</div>
+      </div>
+    `;
+    card.addEventListener('click', e => { e.preventDefault(); startProvinceGame(p); });
+    grid.appendChild(card);
+  });
+
+  async function startProvinceGame(province){
+    const userId = localStorage.getItem('userId');
+    if(!userId){ window.location.href = 'nickname.html'; return; }
+    document.getElementById('loading').classList.add('show');
+    try{
+      const res = await fetch(`${API}/api/games/province`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ userId,province: province.value })
+      });
+      if(!res.ok) throw new Error('game create failed');
+      const game = await res.json();
+      if(game.locationsExhausted){
+      alert("You've explored every location in this mode! we need to reload them now click again");
+      window.location.href = 'mode.html';
+      return;
+    }
+
+      localStorage.setItem('gameId', game.id);
+      localStorage.setItem('lastMode', 'province');
+      localStorage.setItem('lastProvince', JSON.stringify(province));
+      window.location.href = 'game.html';
+    }catch(e){
+      document.getElementById('loading').classList.remove('show');
+      alert(`Could not start ${province.display} game. Try another province or Standard mode.`);
+    }
+  }
+</script>
+</body>
+</html>
