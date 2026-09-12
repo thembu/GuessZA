@@ -43,22 +43,34 @@ public class GameService {
         User user = userRepository.findById(request.userId()).orElseThrow(()-> new UserNotFoundException(request.userId()));
 
         game.setUser(user);
-        Game savedGame = gameRepository.save(game);
 
         //generate 5 random locations and save them in 5 separate rounds of the game
-
-        List<String> visitedLocations = request.visitedLocations().isEmpty() ? List.of("") : request.visitedLocations();
-
 
         List<Location> locations =  new ArrayList<>();
 
         if(type.equals("Standard")) {
 
-            locations = locationService.getRandomLocations(visitedLocations, 5);
+            locations = locationService.getRandomLocations(5);
+
+            if(locations.size() < 5){
+                locationRepository.deleteVisited(user.getId());
+                return GameResponse.locationsExhausted(user.getId() , true);
+            }
 
         } else if (type.equals("Province")){
-            locations = locationService.getLocationByProvince(visitedLocations, request.province() , 5 );
+
+            locations = locationService.getLocationByProvince(request.province() , 5 );
+            if(locations.size() < 5) {
+                locationRepository.deleteVisited(user.getId());
+                return GameResponse.locationsExhausted(user.getId() , true);
+
+            }
+
         }
+
+        //after check for locations save game
+        Game savedGame = gameRepository.save(game);
+
 
         int  count = 1;
         for (Location location : locations) {
@@ -72,7 +84,7 @@ public class GameService {
        }
 
        //return game response to  user
-       return  new GameResponse(savedGame.getId(), user.getId(),GameStatus.IN_PROGRESS, LocalDateTime.now());
+       return  new GameResponse(savedGame.getId(), user.getId(),false,GameStatus.IN_PROGRESS, LocalDateTime.now());
 
     }
 

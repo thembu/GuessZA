@@ -1,0 +1,1 @@
+CREATE TABLE visited_locations (location_id uuid NOT NULL REFERENCES locations(id) , user_id uuid NOT NULL REFERENCES users(id));

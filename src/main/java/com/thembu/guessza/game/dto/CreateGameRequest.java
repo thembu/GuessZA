@@ -9,13 +9,10 @@ import java.util.UUID;
 
 public record CreateGameRequest(
         UUID userId,
-        String province,
-        List<String> visitedLocations
+        String province
 ) {
 
-    public CreateGameRequest {
-        //if visite locations is null replace with empty list otherwise leave as is(null check)
-        visitedLocations = visitedLocations == null ? List.of() : visitedLocations;
-    }
-
 }
+
+
+

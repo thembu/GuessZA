@@ -26,12 +26,14 @@ public class RoundService {
     private final RoundRepository roundRepository;
     private final ScoringService scoringService;
     private final UserRepository userRepository;
+    private final LocationRepository locationRepository;
 
-    public RoundService(GameRepository gameRepository, RoundRepository roundRepository, ScoringService scoringService, UserRepository userRepository) {
+    public RoundService(GameRepository gameRepository, RoundRepository roundRepository, ScoringService scoringService, UserRepository userRepository, LocationRepository locationRepository) {
         this.gameRepository = gameRepository;
         this.roundRepository = roundRepository;
         this.scoringService = scoringService;
         this.userRepository = userRepository;
+        this.locationRepository = locationRepository;
     }
 
     public RoundResponse getCurrentRound(UUID gameId) {
@@ -70,8 +72,10 @@ public class RoundService {
         round.setScore(score.score());
 
         roundRepository.save(round);
-       //check if game is complete
 
+        locationRepository.saveVisited(round.getLocation().getId() , user.getId());
+
+       //check if game is complete
         List<Round> allRounds = roundRepository.findByGame(game);
         boolean completed = allRounds.stream().noneMatch(r -> r.getAnsweredAt() == null);
 

@@ -124,36 +124,46 @@
   }
 
   async function playAgain(){
-    const userId = localStorage.getItem('userId');
-    if(!userId){ window.location.href = 'index.html'; return; }
-    const lastMode = localStorage.getItem('lastMode');
-    try{
-      let res;
-      if(lastMode === 'province'){
-        const p = JSON.parse(localStorage.getItem('lastProvince'));
-        if(!p || !p.value){ window.location.href = 'mode.html'; return; }
-        res = await fetch(`${API}/api/games/province`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ userId, visitedLocations: visited_locations, province: p.value })
-        });
-      }else{
-        res = await fetch(`${API}/api/games`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ userId, visitedLocations: visited_locations, province: null })
-        });
-      }
-      if(!res.ok) throw new Error('game create failed');
-      const game = await res.json();
-      localStorage.setItem('gameId', game.id);
-      window.location.href = 'game.html';
-    }catch(e){
-      window.location.href = 'mode.html';
+  const userId = localStorage.getItem('userId');
+  if(!userId){ window.location.href = 'index.html'; return; }
+  const lastMode = localStorage.getItem('lastMode');
+  try{
+    let res;
+    if(lastMode === 'province'){
+      const p = JSON.parse(localStorage.getItem('lastProvince'));
+      if(!p || !p.value){ window.location.href = 'mode.html'; return; }
+      res = await fetch(`${API}/api/games/province`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ userId,  province: p.value })
+      });
+    }else{
+      res = await fetch(`${API}/api/games`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ userId, province: null })
+      });
     }
+    if(!res.ok) throw new Error('game create failed');
+    const game = await res.json();
+
+    // NEW: locations exhausted for this mode/province
+    if(game.locationsExhausted){
+      alert("You've explored every location in this mode! Choose another mode to keep playing.");
+      window.location.href = 'mode.html';
+      return;
+    }
+
+    localStorage.setItem('gameId', game.id);
+    window.location.href = 'game.html';
+
+  }catch(e){
+    window.location.href = 'mode.html';
   }
+}
 
   loadEndScreen();
+
 </script>
 </body>
 </html>

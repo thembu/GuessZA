@@ -14,14 +14,18 @@ public class LocationService {
         this.locationRepository = locationRepository;
     }
 
-    public List<Location> getRandomLocations(List<String> visitedLocations, int count) {
-       return locationRepository.findRandomActiveLocations(visitedLocations,count);
+    public List<Location> getRandomLocations(int count) {
+       return locationRepository.findRandomActiveLocations(count);
 
     }
 
-    public List<Location> getLocationByProvince(List<String> visitedLocations , String province, int count) {
-        return  locationRepository.findRandomLocationsByProvince(visitedLocations , province , count);
+    public List<Location> getLocationByProvince( String province, int count) {
+        return  locationRepository.findRandomLocationsByProvince( province , count);
     }
+
+
+
+
 
 
 
