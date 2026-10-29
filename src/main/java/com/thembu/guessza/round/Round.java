@@ -3,7 +3,6 @@ package com.thembu.guessza.round;
 import com.thembu.guessza.game.Game;
 import com.thembu.guessza.location.Location;
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;

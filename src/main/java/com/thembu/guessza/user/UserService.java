@@ -2,8 +2,8 @@ package com.thembu.guessza.user;
 
 import com.thembu.guessza.user.dto.CreateUserRequest;
 import com.thembu.guessza.user.dto.UserResponse;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -33,6 +33,7 @@ public class UserService {
 
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getUser(UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
