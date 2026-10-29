@@ -15,6 +15,7 @@ public class LocationService {
         this.locationRepository = locationRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Location> getRandomLocations(int count) {
        return locationRepository.findRandomActiveLocations(count);
 
