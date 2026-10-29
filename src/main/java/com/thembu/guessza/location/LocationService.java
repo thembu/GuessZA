@@ -1,6 +1,7 @@
 package com.thembu.guessza.location;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class LocationService {
 
     }
 
+    @Transactional(readOnly = true)
     public List<Location> getLocationByProvince( String province, int count) {
         return  locationRepository.findRandomLocationsByProvince( province , count);
     }

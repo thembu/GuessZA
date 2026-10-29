@@ -3,7 +3,6 @@ package com.thembu.guessza.round;
 
 import com.thembu.guessza.round.dto.GuessRequest;
 import com.thembu.guessza.round.dto.GuessResponse;
-import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

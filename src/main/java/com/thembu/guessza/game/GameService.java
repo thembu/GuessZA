@@ -10,10 +10,9 @@ import com.thembu.guessza.round.RoundRepository;
 import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,7 +83,7 @@ public class GameService {
        }
 
        //return game response to  user
-       return  new GameResponse(savedGame.getId(), user.getId(),false,GameStatus.IN_PROGRESS, LocalDateTime.now());
+       return  new GameResponse(savedGame.getId(), user.getId(),false,GameStatus.IN_PROGRESS, savedGame.getCreatedAt());
 
     }
 

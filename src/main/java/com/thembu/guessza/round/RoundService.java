@@ -6,17 +6,15 @@ import com.thembu.guessza.game.GameNotFoundException;
 import com.thembu.guessza.game.GameRepository;
 import com.thembu.guessza.game.GameStatus;
 import com.thembu.guessza.location.LocationRepository;
-import com.thembu.guessza.location.Province;
 import com.thembu.guessza.round.dto.*;
 import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -36,6 +34,7 @@ public class RoundService {
         this.locationRepository = locationRepository;
     }
 
+    @Transactional(readOnly = true)
     public RoundResponse getCurrentRound(UUID gameId) {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
 
