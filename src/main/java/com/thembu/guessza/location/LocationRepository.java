@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.UUID;
 
 public interface LocationRepository extends JpaRepository<Location, UUID> {
-    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations) AND  active = true   ORDER BY random() LIMIT :count", nativeQuery = true)
-    List<Location> findRandomActiveLocations(  @Param("count") int count);
+    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true   ORDER BY random() LIMIT :count", nativeQuery = true)
+    List<Location> findRandomActiveLocations(@Param("count") int count , @Param("user_id") UUID user_id);
 
-    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations) AND  active = true AND province ILIKE :province ORDER BY random() LIMIT :count", nativeQuery = true)
-    List<Location> findRandomLocationsByProvince(@Param("province") String province,@Param("count") int count);
+    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true AND province ILIKE :province ORDER BY random() LIMIT :count", nativeQuery = true)
+    List<Location> findRandomLocationsByProvince(@Param("province") String province,@Param("count") int count , @Param("user_id") UUID user_id);
 
     @Transactional
     @Modifying
