@@ -1,0 +1,1 @@
+ALTER TABLE visited_locations ADD CONSTRAINT id PRIMARY KEY (location_id , user_id);

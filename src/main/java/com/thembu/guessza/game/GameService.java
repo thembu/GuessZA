@@ -49,7 +49,7 @@ public class GameService {
 
         if(type.equals("Standard")) {
 
-            locations = locationService.getRandomLocations(5);
+            locations = locationService.getRandomLocations(5 , user.getId());
 
             if(locations.size() < 5){
                 locationRepository.deleteVisited(user.getId());
@@ -58,7 +58,7 @@ public class GameService {
 
         } else if (type.equals("Province")){
 
-            locations = locationService.getLocationByProvince(request.province() , 5 );
+            locations = locationService.getLocationByProvince(request.province() , 5 , user.getId());
             if(locations.size() < 5) {
                 locationRepository.deleteVisited(user.getId());
                 return GameResponse.locationsExhausted(user.getId() , true);

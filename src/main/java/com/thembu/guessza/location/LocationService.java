@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LocationService {
@@ -16,14 +17,14 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Location> getRandomLocations(int count) {
-       return locationRepository.findRandomActiveLocations(count);
+    public List<Location> getRandomLocations(int count , UUID user_id) {
+       return locationRepository.findRandomActiveLocations(count , user_id);
 
     }
 
     @Transactional(readOnly = true)
-    public List<Location> getLocationByProvince( String province, int count) {
-        return  locationRepository.findRandomLocationsByProvince( province , count);
+    public List<Location> getLocationByProvince( String province, int count , UUID user_id) {
+        return  locationRepository.findRandomLocationsByProvince( province , count , user_id);
     }
 
 

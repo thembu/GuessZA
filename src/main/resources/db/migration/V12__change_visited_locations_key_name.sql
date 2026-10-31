@@ -1,0 +1,1 @@
+ALTER TABLE visited_locations RENAME CONSTRAINT id TO visited_locations_pkey;
