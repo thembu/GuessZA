@@ -48,6 +48,7 @@ public class LocationRepositoryTest {
         User alice = makeUser("alice");
         Location location = anyLocation();
         locationRepository.saveVisited(location.getId(), alice.getId());
+        locationRepository.saveVisited(location.getId(), alice.getId());   // no exception
 
         assertThat(visitedCount(alice.getId())).isEqualTo(1);
     }
