@@ -1,4 +1,4 @@
-package com.thembu.guessza.clientConfig.dto;
+package com.thembu.guessza.clientconfig.dto;
 
 public record ConfigResponse(
         String apiKey

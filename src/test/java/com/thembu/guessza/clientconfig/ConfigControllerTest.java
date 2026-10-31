@@ -1,4 +1,4 @@
-package com.thembu.guessza.clientConfig;
+package com.thembu.guessza.clientconfig;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
