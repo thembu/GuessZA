@@ -38,10 +38,22 @@ public class RoundService {
     public RoundResponse getCurrentRound(UUID gameId) {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
 
-        Round round  = roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game).orElseThrow(() -> new GameNotFoundException(gameId));
+        //check if game is completed first
 
-        return  new RoundResponse(round.getId(), round.getRoundNumber(), round.getLocation().getLatitude(), round.getLocation().getLongitude());
+        List<Round> allRounds = roundRepository.findByGame(game);
+        boolean completed = allRounds.stream().noneMatch(r -> r.getAnsweredAt() == null);
 
+        if(completed) {
+            throw new RoundFromCompletedGame(gameId);
+        }
+
+        else {
+
+            Round round = roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game).orElseThrow(() -> new GameNotFoundException(gameId));
+
+            return new RoundResponse(round.getId(), round.getRoundNumber(), round.getLocation().getLatitude(), round.getLocation().getLongitude());
+
+        }
     }
 
     @Transactional
@@ -74,7 +86,7 @@ public class RoundService {
 
         locationRepository.saveVisited(round.getLocation().getId() , user.getId());
 
-       //check if game is complete
+        //check if game is complete
         List<Round> allRounds = roundRepository.findByGame(game);
         boolean completed = allRounds.stream().noneMatch(r -> r.getAnsweredAt() == null);
 
