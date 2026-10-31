@@ -56,11 +56,8 @@ Docker Compose loads `.env` automatically. Postgres only applies these credentia
 
 **3. Add your Google Maps API key**
 
-In `src/main/resources/static/game.html` and `result.html`, find this line and replace `YOUR_API_KEY` with your key:
+get a key, restrict it, put it in .env as GOOGLE_MAPS_API_KEY.
 
-```html
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initGoogleMaps" async defer></script>
-```
 
 **4. Start the app**
 ```bash
