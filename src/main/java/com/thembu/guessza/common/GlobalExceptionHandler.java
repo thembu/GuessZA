@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OptimisticLockingFailureException.class)
     public ProblemDetail handleVersionCheckFail(OptimisticLockingFailureException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , "\"The resource was modified by another request. Refresh and try again.");
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , "The resource was modified by another request. Refresh and try again.");
     }
 
     @ExceptionHandler(GameNotFoundException.class)
