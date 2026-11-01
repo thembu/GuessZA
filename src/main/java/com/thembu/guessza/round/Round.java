@@ -35,6 +35,9 @@ public class Round {
 
     private  LocalDateTime answeredAt;
 
+    @Version
+    private  Long version;
+
     public Round() {
 
     }

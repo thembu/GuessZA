@@ -3,6 +3,7 @@ package com.thembu.guessza.round;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -42,14 +43,29 @@ class RoundControllerTest {
     }
 
     @Test
-    void alreadyAnsweredRoundReturns400() throws Exception {
+    void alreadyAnsweredRoundReturns409() throws Exception {
         UUID id = UUID.randomUUID();
         when(roundService.submitGuess(eq(id), any())).thenThrow(new RoundAlreadyAnswered(id));
 
         mockMvc.perform(post("/api/rounds/{id}/guess", id)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(GUESS))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void versionConflictReturns409() throws Exception {
+        UUID id = UUID.randomUUID();
+        //plain parent type on purpose: the handler must catch every subclass, not just Hibernate's
+        when(roundService.submitGuess(eq(id), any()))
+                .thenThrow(new OptimisticLockingFailureException("stale round"));
+
+        mockMvc.perform(post("/api/rounds/{id}/guess", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(GUESS))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.detail")
+                        .value("The resource was modified by another request. Refresh and try again."));
     }
 
 }

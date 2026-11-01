@@ -6,9 +6,11 @@ import com.thembu.guessza.round.RoundAlreadyAnswered;
 import com.thembu.guessza.round.RoundFromCompletedGame;
 import com.thembu.guessza.round.RoundNotFoundException;
 import com.thembu.guessza.user.UserNotFoundException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ProblemDetail;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -23,7 +25,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RoundAlreadyAnswered.class)
     public ProblemDetail handleRoundAlreadyAnswered(RoundAlreadyAnswered ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ProblemDetail handleVersionCheckFail(OptimisticLockingFailureException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , "The resource was modified by another request. Refresh and try again.");
     }
 
     @ExceptionHandler(GameNotFoundException.class)
