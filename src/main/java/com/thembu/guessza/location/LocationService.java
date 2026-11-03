@@ -23,8 +23,8 @@ public class LocationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Location> getLocationByProvince( String province, int count , UUID user_id) {
-        return  locationRepository.findRandomLocationsByProvince( province , count , user_id);
+    public List<Location> getLocationByProvince( Province province, int count , UUID user_id) {
+        return  locationRepository.findRandomLocationsByProvince( province.name() , count , user_id);
     }
 
 

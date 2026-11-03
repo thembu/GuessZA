@@ -4,6 +4,7 @@ import com.thembu.guessza.user.dto.CreateUserRequest;
 import com.thembu.guessza.user.dto.UserResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.UUID;
 
