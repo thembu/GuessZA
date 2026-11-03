@@ -5,6 +5,7 @@ import com.thembu.guessza.game.dto.CreateGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.round.RoundService;
 import com.thembu.guessza.round.dto.RoundResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,13 +26,13 @@ public class GameController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public GameResponse createGame(@RequestBody CreateGameRequest request) {
+    public GameResponse createGame(@RequestBody @Valid CreateGameRequest request) {
         return  gameService.createGame(request, "Standard");
     }
 
     @PostMapping("/province")
     @ResponseStatus(HttpStatus.CREATED)
-    public  GameResponse createProvinceGame(@RequestBody CreateGameRequest request){
+    public  GameResponse createProvinceGame(@RequestBody @Valid CreateGameRequest request){
         return  gameService.createGame(request , "Province");
     }
 
