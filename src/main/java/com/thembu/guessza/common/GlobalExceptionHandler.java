@@ -25,12 +25,6 @@ import java.util.Arrays;
 public class GlobalExceptionHandler {
 
 
-    private final View error;
-
-    public GlobalExceptionHandler(View error) {
-        this.error = error;
-    }
-
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -46,7 +40,7 @@ public class GlobalExceptionHandler {
         String message = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(fieldError -> fieldError.getDefaultMessage())
+                .map(fieldError -> fieldError.getField() + " " + fieldError.getDefaultMessage())
                 .findFirst()
                 .orElse("Validation failed");
 

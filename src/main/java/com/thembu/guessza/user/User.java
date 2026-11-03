@@ -2,6 +2,7 @@ package com.thembu.guessza.user;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,6 +19,7 @@ public class User {
     private UUID id;
 
     @NotBlank(message = "nickname cannot be blank")
+    @Size(max = 20)
     private String nickname;
     private Integer gamesPlayed = 0;
     private Integer highScore = 0;

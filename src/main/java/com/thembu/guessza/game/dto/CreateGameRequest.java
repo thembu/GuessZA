@@ -8,9 +8,8 @@ import java.util.UUID;
 
 public record CreateGameRequest(
 
-        @NotNull(message = "must not be null")
-        UUID userId,
-        Province province
+        @NotNull
+        UUID userId
 ) {
 
 }
