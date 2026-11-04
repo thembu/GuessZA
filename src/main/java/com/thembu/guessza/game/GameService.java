@@ -1,6 +1,7 @@
 package com.thembu.guessza.game;
 
 import com.thembu.guessza.game.dto.CreateGameRequest;
+import com.thembu.guessza.game.dto.CreateProvinceGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.location.Location;
 import com.thembu.guessza.location.LocationRepository;
@@ -10,11 +11,13 @@ import com.thembu.guessza.round.RoundRepository;
 import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
+import org.hibernate.sql.ast.tree.expression.Star;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class GameService {
@@ -33,8 +36,40 @@ public class GameService {
         this.locationService = locationService;
     }
 
+
+    private GameResponse StartGame(UUID userId, Game game, List<Location> locations ) {
+
+
+        if(locations.size() < 5){
+            locationRepository.deleteVisited(userId);
+            return GameResponse.locationsExhausted(userId , true);
+        }
+
+
+        //after check for locations save game
+         gameRepository.save(game);
+
+
+        int  count = 1;
+        for (Location location : locations) {
+
+            Round round = new Round();
+            round.setGame(game);
+            round.setLocation(location);
+            round.setRoundNumber(count);
+            count += 1;
+            roundRepository.save(round);
+        }
+
+        //return game response to  user
+        return  new GameResponse(game.getId(), userId,false,GameStatus.IN_PROGRESS, game.getCreatedAt());
+
+
+
+    }
+
     @Transactional
-    public GameResponse createGame(CreateGameRequest request, String type) {
+    public GameResponse createGame(CreateGameRequest request) {
 
         //create new instance of game entity, add user/player for that game and save it
         Game game = new Game();
@@ -43,47 +78,20 @@ public class GameService {
 
         game.setUser(user);
 
-        //generate 5 random locations and save them in 5 separate rounds of the game
+        return StartGame( request.userId(), game , locationService.getRandomLocations(5, request.userId()));
 
-        List<Location> locations =  new ArrayList<>();
-
-        if(type.equals("Standard")) {
-
-            locations = locationService.getRandomLocations(5 , user.getId());
-
-            if(locations.size() < 5){
-                locationRepository.deleteVisited(user.getId());
-                return GameResponse.locationsExhausted(user.getId() , true);
-            }
-
-        } else if (type.equals("Province")){
-
-            locations = locationService.getLocationByProvince(request.province() , 5 , user.getId());
-            if(locations.size() < 5) {
-                locationRepository.deleteVisited(user.getId());
-                return GameResponse.locationsExhausted(user.getId() , true);
-
-            }
-
-        }
-
-        //after check for locations save game
-        Game savedGame = gameRepository.save(game);
+    }
 
 
-        int  count = 1;
-        for (Location location : locations) {
+    @Transactional
+    public  GameResponse createProvinceGame(CreateProvinceGameRequest request) {
+        Game game = new Game();
 
-           Round round = new Round();
-           round.setGame(game);
-           round.setLocation(location);
-           round.setRoundNumber(count);
-           count += 1;
-           roundRepository.save(round);
-       }
+        User user = userRepository.findById(request.userId()).orElseThrow(()-> new UserNotFoundException(request.userId()));
 
-       //return game response to  user
-       return  new GameResponse(savedGame.getId(), user.getId(),false,GameStatus.IN_PROGRESS, savedGame.getCreatedAt());
+        game.setUser(user);
+
+        return StartGame( request.userId(), game , locationService.getLocationByProvince(request.province(),5, request.userId()));
 
     }
 

@@ -2,6 +2,7 @@ package com.thembu.guessza.game;
 
 
 import com.thembu.guessza.game.dto.CreateGameRequest;
+import com.thembu.guessza.game.dto.CreateProvinceGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.round.RoundService;
 import com.thembu.guessza.round.dto.RoundResponse;
@@ -27,13 +28,13 @@ public class GameController {
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
     public GameResponse createGame(@RequestBody @Valid CreateGameRequest request) {
-        return  gameService.createGame(request, "Standard");
+        return  gameService.createGame(request);
     }
 
     @PostMapping("/province")
     @ResponseStatus(HttpStatus.CREATED)
-    public  GameResponse createProvinceGame(@RequestBody @Valid CreateGameRequest request){
-        return  gameService.createGame(request , "Province");
+    public  GameResponse createProvinceGame(@RequestBody @Valid CreateProvinceGameRequest request){
+        return  gameService.createProvinceGame(request);
     }
 
     @GetMapping("/{id}/current-round")

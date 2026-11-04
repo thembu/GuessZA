@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record CreateProvinceGame(
+public record CreateProvinceGameRequest(
 
         @NotNull(message = "must not be null")
         UUID userId,
