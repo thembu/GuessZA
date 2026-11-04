@@ -1,4 +1,4 @@
-name: CI.yml
+name: CI
 
 on:
   pull_request:
