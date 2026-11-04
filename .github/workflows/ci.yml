@@ -26,11 +26,18 @@ jobs:
             POSTGRES_PASSWORD: guessza
           ports:
             - 5432:5432
+
+          # - The health check makes the job wait until Postgres accepts connections. Without it, Flyway can race the database and
+          #    fail randomly.
           options: >-
             --health-cmd "pg_isready -U guessza -d guessza"
             --health-interval 5s
             --health-timeout 5s
             --health-retries 10
+
+      #  - cache: maven: keeps ~/.m2 between runs. The first run downloads everything; later runs are much faster.
+      #  - -B (batch mode): clean logs with no download progress spam.
+      #  - verify vs test: verify also packages the JAR, so it also catches problems that only show up when building the JAR.
       steps:
        - uses: actions/checkout@v4
 
