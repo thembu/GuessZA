@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      env:
+        POSTGRES_DB: guessza
+        POSTGRES_USER: guessza
+        POSTGRES_PASSWORD: guessza
+        GOOGLE_MAPS_API_KEY: ci-dummy-key
+
+      services:
+        postgres:
+          image: postgres:16
+          env:
+            POSTGRES_DB: guessza
+            POSTGRES_USER: guessza
+            POSTGRES_PASSWORD: guessza
+          ports:
+            - 5432:5432
+
+          # - The health check makes the job wait until Postgres accepts connections. Without it, Flyway can race the database and
+          #    fail randomly.
+          options: >-
+            --health-cmd "pg_isready -U guessza -d guessza"
+            --health-interval 5s
+            --health-timeout 5s
+            --health-retries 10
+
+      #  - cache: maven: keeps ~/.m2 between runs. The first run downloads everything; later runs are much faster.
+      #  - -B (batch mode): clean logs with no download progress spam.
+      #  - verify vs test: verify also packages the JAR, so it also catches problems that only show up when building the JAR.
+      steps:
+       - uses: actions/checkout@v4
+
+       - uses: actions/setup-java@v4
+         with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+       - name: Build and test
+         run: ./mvnw -B verify
+
+
+    docker:
+      needs: build
+      if: github.event_name == 'push'
+      runs-on: ubuntu-latest
+      permissions:
+        contents: read
+        packages: write
+      steps:
+        - uses: actions/checkout@v4
+        - uses: docker/login-action@v3
+          with:
+            registry: ghcr.io
+            username: ${{ github.actor }}
+            password: ${{ secrets.GITHUB_TOKEN }}
+        - id: meta
+          uses: docker/metadata-action@v5
+          with:
+            images: ghcr.io/${{ github.repository }}
+            tags: |
+              type=raw,value=latest
+              type=sha
+        - uses: docker/build-push-action@v6
+          with:
+            context: .
+            push: true
+            tags: ${{ steps.meta.outputs.tags }}
+            labels: ${{ steps.meta.outputs.labels }}
+
+
