@@ -1,0 +1,46 @@
+name: ci.yml
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+
+jobs:
+    build:
+      runs-on: ubuntu-latest
+
+      env:
+        POSTGRES_DB: guessza
+        POSTGRES_USER: guessza
+        POSTGRES_PASSWORD: guessza
+        GOOGLE_MAPS_API_KEY: ci-dummy-key
+
+      services:
+        postgres:
+          image: postgres:16
+          env:
+            POSTGRES_DB: guessza
+            POSTGRES_USER: guessza
+            POSTGRES_PASSWORD: guessza
+          ports:
+            - 5432:5432
+          options: >-
+            --health-cmd "pg_isready -U guessza -d guessza"
+            --health-interval 5s
+            --health-timeout 5s
+            --health-retries 10
+      steps:
+       - uses: actions/checkout@v4
+
+       - uses: actions/setup-java@v4
+         with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+       - name: Build and test
+         run: ./mvnw -B verify
+
+
