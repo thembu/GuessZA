@@ -1,4 +1,12 @@
 package com.thembu.guessza.round.dto;
 
-public record GuessRequest(double guessLatitude , double guessLongitude) {
+import jakarta.validation.constraints.*;
+
+public record GuessRequest(
+
+        @NotNull @DecimalMin("-90.0")  @DecimalMax("90.0")
+        Double guessLatitude ,
+        @NotNull @DecimalMin("-180.0") @DecimalMax("180.0")
+        Double guessLongitude
+) {
 }

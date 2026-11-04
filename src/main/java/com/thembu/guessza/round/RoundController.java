@@ -3,6 +3,7 @@ package com.thembu.guessza.round;
 
 import com.thembu.guessza.round.dto.GuessRequest;
 import com.thembu.guessza.round.dto.GuessResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class RoundController {
 
     @PostMapping("/{roundId}/guess")
     @ResponseStatus(HttpStatus.OK)
-    public GuessResponse submitGuess(@PathVariable UUID roundId , @RequestBody GuessRequest request) {
+    public GuessResponse submitGuess(@PathVariable UUID roundId , @Valid @RequestBody GuessRequest request) {
 
         return roundService.submitGuess(roundId , request);
 
