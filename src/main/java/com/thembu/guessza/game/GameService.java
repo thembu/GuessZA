@@ -11,11 +11,9 @@ import com.thembu.guessza.round.RoundRepository;
 import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
-import org.hibernate.sql.ast.tree.expression.Star;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,6 +25,7 @@ public class GameService {
     private  final RoundRepository roundRepository;
     private  final LocationRepository locationRepository;
     private final  LocationService locationService;
+    private static final int ROUNDS_PER_GAME = 5;
 
     public GameService(GameRepository gameRepository, UserRepository userRepository, RoundRepository roundRepository, LocationRepository locationRepository, LocationService locationService) {
         this.gameRepository = gameRepository;
@@ -37,15 +36,16 @@ public class GameService {
     }
 
 
-    private GameResponse StartGame(UUID userId, Game game, List<Location> locations ) {
+    private GameResponse startGame(UUID userId, Game game, List<Location> locations ) {
 
 
-        if(locations.size() < 5){
+        if(locations.size() < ROUNDS_PER_GAME){
             locationRepository.deleteVisited(userId);
             return GameResponse.locationsExhausted(userId , true);
         }
 
 
+        game.setTotalRounds(ROUNDS_PER_GAME);
         //after check for locations save game
          gameRepository.save(game);
 
@@ -78,7 +78,7 @@ public class GameService {
 
         game.setUser(user);
 
-        return StartGame( request.userId(), game , locationService.getRandomLocations(5, request.userId()));
+        return startGame( request.userId(), game , locationService.getRandomLocations(ROUNDS_PER_GAME, request.userId()));
 
     }
 
@@ -91,7 +91,7 @@ public class GameService {
 
         game.setUser(user);
 
-        return StartGame( request.userId(), game , locationService.getLocationByProvince(request.province(),5, request.userId()));
+        return startGame( request.userId(), game , locationService.getLocationByProvince(request.province(),ROUNDS_PER_GAME, request.userId()));
 
     }
 
