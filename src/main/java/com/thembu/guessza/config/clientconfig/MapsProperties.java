@@ -1,4 +1,4 @@
-package com.thembu.guessza.clientconfig;
+package com.thembu.guessza.config.clientconfig;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

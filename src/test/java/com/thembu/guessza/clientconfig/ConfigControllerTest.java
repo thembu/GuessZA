@@ -1,5 +1,7 @@
 package com.thembu.guessza.clientconfig;
 
+import com.thembu.guessza.config.clientconfig.ConfigController;
+import com.thembu.guessza.config.clientconfig.MapsProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

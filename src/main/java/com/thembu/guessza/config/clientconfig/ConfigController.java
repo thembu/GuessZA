@@ -1,4 +1,4 @@
-package com.thembu.guessza.clientconfig;
+package com.thembu.guessza.config.clientconfig;
 
 
 import org.springframework.http.HttpStatus;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import com.thembu.guessza.clientconfig.dto.ConfigResponse;
+import com.thembu.guessza.config.clientconfig.dto.ConfigResponse;
 
 @RestController
 @RequestMapping("/api/config")

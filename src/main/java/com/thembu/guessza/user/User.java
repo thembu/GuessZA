@@ -18,10 +18,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    private  String username;
+
+    private String password;
+
     @NotBlank(message = "nickname cannot be blank")
     @Size(max = 20)
     private String nickname;
+
     private Integer gamesPlayed = 0;
+
     private Integer highScore = 0;
 
     @CreationTimestamp

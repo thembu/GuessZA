@@ -1,5 +1,6 @@
 package com.thembu.guessza.clientconfig;
 
+import com.thembu.guessza.config.clientconfig.MapsProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
