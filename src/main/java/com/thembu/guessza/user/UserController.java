@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/user")
 @CrossOrigin
 public class UserController {
 
@@ -27,8 +27,8 @@ public class UserController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{id}")
-    public UserResponse getUser(@PathVariable UUID id) {
+    @GetMapping("/me")
+    public UserResponse getUser(@RequestBody UUID id) {
         return userService.getUser(id);
     }
 

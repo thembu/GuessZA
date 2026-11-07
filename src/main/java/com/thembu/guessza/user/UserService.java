@@ -25,12 +25,13 @@ public class UserService {
         //map dto -> entity
         User user = new  User();
         user.setNickname(request.nickname());
-
+        user.setUsername(request.username());
+        user.setPassword(request.password_hash());
         //save to db
 
         User saved = userRepository.save(user);
 
-        return  new UserResponse(saved.getId() , saved.getNickname(), saved.getGamesPlayed(), saved.getHighScore());
+        return  new UserResponse(saved.getId() , user.getUsername(), saved.getNickname(), saved.getGamesPlayed(), saved.getHighScore());
 
     }
 
@@ -38,7 +39,7 @@ public class UserService {
     public UserResponse getUser(UUID id) {
         User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
 
-        return  new UserResponse(user.getId() , user.getNickname(), user.getGamesPlayed(), user.getHighScore());
+        return  new UserResponse(user.getId() , user.getUsername(),user.getNickname(), user.getGamesPlayed(), user.getHighScore());
 
     }
 
