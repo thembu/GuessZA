@@ -22,6 +22,8 @@ public class UserService {
     @Transactional
     public UserResponse createUser (CreateUserRequest request) {
 
+        if(userRepository.existsUserByUsername(request.username())) throw  new UserAlreadyExists(request.username());
+
         //map dto -> entity
         User user = new  User();
         user.setNickname(request.nickname());

@@ -6,6 +6,7 @@ import com.thembu.guessza.location.InsufficientLocationsException;
 import com.thembu.guessza.round.RoundAlreadyAnswered;
 import com.thembu.guessza.round.RoundFromCompletedGame;
 import com.thembu.guessza.round.RoundNotFoundException;
+import com.thembu.guessza.user.UserAlreadyExists;
 import com.thembu.guessza.user.UserNotFoundException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserAlreadyExists.class)
+    public ProblemDetail handleUserAlreadyExists(UserAlreadyExists ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , ex.getMessage());
     }
 
     //intercept MethodArgumentNotValidException so when validation fails correct api response is sent

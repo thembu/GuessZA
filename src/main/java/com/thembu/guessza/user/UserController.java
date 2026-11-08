@@ -20,12 +20,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("")
-    public UserResponse createUser(@RequestBody @Valid CreateUserRequest request) {
-        return  userService.createUser(request);
-    }
-
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/me")
     public UserResponse getUser(@RequestBody UUID id) {
