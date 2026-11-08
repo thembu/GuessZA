@@ -2,9 +2,9 @@ package com.thembu.guessza.user;
 
 import com.thembu.guessza.user.dto.CreateUserRequest;
 import com.thembu.guessza.user.dto.UserResponse;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.UUID;
 
@@ -13,10 +13,11 @@ import java.util.UUID;
 public class UserService {
 
     private  final UserRepository userRepository;
+    private final PasswordEncoder encoder;
 
-
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder encoder) {
         this.userRepository = userRepository;
+        this.encoder = encoder;
     }
 
     @Transactional
@@ -28,7 +29,10 @@ public class UserService {
         User user = new  User();
         user.setNickname(request.nickname());
         user.setUsername(request.username());
-        user.setPassword(request.password_hash());
+
+        //encode password  when creating a user
+        user.setPassword(encoder.encode(request.password_hash()));
+
         //save to db
 
         User saved = userRepository.save(user);
