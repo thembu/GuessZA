@@ -1,5 +1,10 @@
 package com.thembu.guessza.round;
 
+import com.thembu.guessza.config.JwtUtil;
+import com.thembu.guessza.config.security.SecurityConfig;
+import com.thembu.guessza.user.UserRepository;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,7 +23,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = RoundController.class)
+@Import(SecurityConfig.class) // run through the real security rules, not Boot's defaults
+@WithMockUser               // these endpoints all require a logged-in user
 class RoundControllerTest {
+
+    // SecurityConfig and JwtFilter need these, and the web slice doesn't load them
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
     private static final String GUESS = """
             { "guessLatitude": -26.2, "guessLongitude": 28.05 }

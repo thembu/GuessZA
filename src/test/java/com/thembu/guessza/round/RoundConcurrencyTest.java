@@ -47,6 +47,8 @@ class RoundConcurrencyTest {
     void setUp() {
         user = new User();
         user.setNickname("race-test");
+        user.setUsername("race-test");
+        user.setPassword("hash-race-test");
         user = userRepository.save(user);
 
         game = new Game();

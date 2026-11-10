@@ -185,6 +185,8 @@ import java.util.Optional;
     private User makeUser(String nickname) {
         User u = new User();
         u.setNickname(nickname);
+        u.setUsername(nickname);
+        u.setPassword("hash-" + nickname); // username and password_hash are NOT NULL + UNIQUE since V14
         entityManager.persist(u);
         return u;
     }
