@@ -1,11 +1,13 @@
 package com.thembu.guessza.common;
 
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.thembu.guessza.game.GameNotFoundException;
 import com.thembu.guessza.location.InsufficientLocationsException;
 import com.thembu.guessza.round.RoundAlreadyAnswered;
 import com.thembu.guessza.round.RoundFromCompletedGame;
 import com.thembu.guessza.round.RoundNotFoundException;
+import com.thembu.guessza.user.UserAlreadyExists;
 import com.thembu.guessza.user.UserNotFoundException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,6 +31,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotFoundException.class)
     public ProblemDetail handleUserNotFound(UserNotFoundException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UserAlreadyExists.class)
+    public ProblemDetail handleUserAlreadyExists(UserAlreadyExists ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleInvalidPassword(BadCredentialsException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED , "Wrong Credentials");
     }
 
     //intercept MethodArgumentNotValidException so when validation fails correct api response is sent

@@ -1,5 +1,10 @@
 package com.thembu.guessza.game;
 
+import com.thembu.guessza.config.JwtUtil;
+import com.thembu.guessza.config.security.SecurityConfig;
+import com.thembu.guessza.user.UserRepository;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.thembu.guessza.round.RoundFromCompletedGame;
 import com.thembu.guessza.round.RoundService;
@@ -19,7 +24,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = GameController.class)
+@Import(SecurityConfig.class) // run through the real security rules, not Boot's defaults
+@WithMockUser               // these endpoints all require a logged-in user
 class GameControllerTest {
+
+    // SecurityConfig and JwtFilter need these, and the web slice doesn't load them
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private UserRepository userRepository;
 
     @Autowired
     private MockMvc mockMvc;

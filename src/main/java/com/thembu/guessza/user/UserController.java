@@ -1,15 +1,15 @@
 package com.thembu.guessza.user;
 
-import com.thembu.guessza.user.dto.CreateUserRequest;
 import com.thembu.guessza.user.dto.UserResponse;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api")
 @CrossOrigin
 public class UserController {
 
@@ -20,16 +20,10 @@ public class UserController {
         this.userService = userService;
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("")
-    public UserResponse createUser(@RequestBody @Valid CreateUserRequest request) {
-        return  userService.createUser(request);
-    }
-
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{id}")
-    public UserResponse getUser(@PathVariable UUID id) {
-        return userService.getUser(id);
+    @GetMapping("/me")
+    public UserResponse getUser(@AuthenticationPrincipal UserDetails principal) {
+        return userService.getUser(principal.getUsername());
     }
 
 }

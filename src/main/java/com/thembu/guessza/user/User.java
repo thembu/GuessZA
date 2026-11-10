@@ -1,5 +1,6 @@
 package com.thembu.guessza.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -18,10 +19,16 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    private  String username;
+
+    private String password_hash;
+
     @NotBlank(message = "nickname cannot be blank")
     @Size(max = 20)
     private String nickname;
+
     private Integer gamesPlayed = 0;
+
     private Integer highScore = 0;
 
     @CreationTimestamp
@@ -44,6 +51,23 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password_hash;
+    }
+
+    public void setPassword(String password_hash) {
+        this.password_hash = password_hash;
+    }
 
 
 
