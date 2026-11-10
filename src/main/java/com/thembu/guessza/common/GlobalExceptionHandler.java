@@ -1,5 +1,6 @@
 package com.thembu.guessza.common;
 
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.thembu.guessza.game.GameNotFoundException;
 import com.thembu.guessza.location.InsufficientLocationsException;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -34,6 +36,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserAlreadyExists.class)
     public ProblemDetail handleUserAlreadyExists(UserAlreadyExists ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , ex.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleInvalidPassword(BadCredentialsException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED , "Wrong Credentials");
     }
 
     //intercept MethodArgumentNotValidException so when validation fails correct api response is sent

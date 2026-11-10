@@ -42,8 +42,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponse getUser(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
+    public UserResponse getUser(String username) {
+        User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
 
         return  new UserResponse(user.getId() , user.getUsername(),user.getNickname(), user.getGamesPlayed(), user.getHighScore());
 

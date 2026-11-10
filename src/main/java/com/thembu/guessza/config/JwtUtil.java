@@ -1,6 +1,7 @@
 package com.thembu.guessza.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -17,7 +18,7 @@ public class JwtUtil {
     private  final SecretKey key;
 
 
-    public JwtUtil(@Value("$jwt.secret}") String secret) {
+    public JwtUtil(@Value("${jwt.secret}") String secret) {
         this.key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
@@ -41,6 +42,15 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return parseClaims(token).getSubject();
+    }
+
+    public boolean isTokenValid(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 
 
