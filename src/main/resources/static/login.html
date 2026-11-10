@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Log in</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;height:100vh;overflow:hidden;display:flex;}
+  .hero{
+    flex:1;
+    background:#0a0f0d url('images/nickname-hero.jpg') center/cover no-repeat;
+    position:relative;
+  }
+  .hero::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(to right, transparent 0%, rgba(15,22,19,0.4) 70%, #0f1613 100%);
+  }
+  .hero-brand{
+    position:absolute;top:24px;left:40px;z-index:2;
+    font-weight:700;font-size:18px;letter-spacing:-0.3px;color:#fff;
+  }
+  .hero-brand span{color:#4ade80;}
+  .form-side{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:40px;position:relative;
+  }
+  .back{
+    position:absolute;top:24px;right:40px;
+    color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;
+  }
+  .back:hover{color:#fff;}
+  .card{width:100%;max-width:400px;}
+  h1{font-size:36px;font-weight:700;letter-spacing:-1px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:32px;line-height:1.5;}
+  label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:6px;}
+  input{
+    width:100%;background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;
+    color:#fff;font-family:inherit;font-size:15px;outline:none;
+    transition:border 0.15s,background 0.15s;margin-bottom:16px;
+  }
+  input::placeholder{color:rgba(255,255,255,0.3);}
+  input:focus{border-color:#4ade80;background:rgba(74,222,128,0.05);}
+  button{
+    width:100%;background:#4ade80;color:#0a2818;
+    font-family:inherit;font-size:15px;font-weight:600;
+    padding:14px;border:none;border-radius:8px;cursor:pointer;
+    transition:background 0.15s,opacity 0.15s;margin-top:12px;
+  }
+  button:hover{background:#3ec972;}
+  button:disabled{opacity:0.4;cursor:not-allowed;}
+  .error{color:#f87171;font-size:13px;margin-top:12px;display:none;}
+  .switch{margin-top:24px;font-size:14px;color:rgba(255,255,255,0.55);}
+  .switch a{color:#4ade80;text-decoration:none;font-weight:500;}
+  .switch a:hover{text-decoration:underline;}
+  @media (max-width: 768px){
+    body{flex-direction:column;overflow-y:auto;height:auto;min-height:100vh;}
+    .hero{height:200px;flex:none;}
+    .form-side{padding:32px 24px;}
+  }
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-brand">Guess<span>ZA</span></div></div>
+<div class="form-side">
+  <a href="index.html" class="back">← Back</a>
+  <form class="card" id="loginForm" novalidate>
+    <h1>Welcome back</h1>
+    <p class="sub">Log in to keep your scores and stats.</p>
+    <label for="username">Username</label>
+    <input id="username" type="text" autocomplete="username" maxlength="20" autofocus/>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password"/>
+    <button id="submitBtn" type="submit">Log in</button>
+    <p class="error" id="errorMsg" role="alert"></p>
+    <p class="switch">No account yet? <a href="register.html">Create one</a></p>
+  </form>
+</div>
+<script src="/js/api.js"></script>
+<script>
+  if (isLoggedIn()) window.location.href = 'mode.html';
+
+  const form = document.getElementById('loginForm');
+  const btn = document.getElementById('submitBtn');
+  const err = document.getElementById('errorMsg');
+
+  function showError(message){
+    err.textContent = message;
+    err.style.display = 'block';
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    if (!username || !password) { showError('Enter your username and password.'); return; }
+
+    btn.disabled = true; btn.textContent = 'Logging in...'; err.style.display = 'none';
+    try {
+      const { token } = await api('/api/auth/login', { method: 'POST', body: { username, password }, auth: false });
+      setToken(token);
+      window.location.href = 'mode.html';
+    } catch (e) {
+      // 401 = wrong credentials. 400 = input the server could never accept (e.g. a 2-letter
+      // username), so it can't be a real account either: same message, nothing to enumerate.
+      if (e instanceof ApiError && (e.status === 401 || e.status === 400)) showError('Wrong username or password.');
+      else showError('Something went wrong. Is the server running?');
+      btn.disabled = false; btn.textContent = 'Log in';
+    }
+  });
+</script>
+</body>
+</html>

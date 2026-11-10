@@ -1,7 +1,8 @@
 // Loads the Google Maps JavaScript API using the key served by GET /api/config,
 // so the key lives in .env instead of being hard-coded in the HTML.
 //
-// Usage (at the bottom of a page):
+// Usage (at the bottom of a page, after /js/api.js):
+//   <script src="/js/api.js"></script>
 //   <script src="/js/maps-loader.js"></script>
 //   <script>loadGoogleMaps('initMyMap');</script>
 //
@@ -36,9 +37,7 @@ async function loadGoogleMaps(callbackName) {
 
   let apiKey;
   try {
-    const res = await fetch('/api/config');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    ({ apiKey } = await res.json());
+    ({ apiKey } = await api('/api/config')); // authenticated since #18, so it goes through api()
   } catch (err) {
     console.error('Could not load /api/config', err);
     showMapError('Map unavailable: could not load configuration from the server.');

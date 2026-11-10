@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Create account</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;height:100vh;overflow:hidden;display:flex;}
+  .hero{
+    flex:1;
+    background:#0a0f0d url('images/nickname-hero.jpg') center/cover no-repeat;
+    position:relative;
+  }
+  .hero::after{
+    content:'';position:absolute;inset:0;
+    background:linear-gradient(to right, transparent 0%, rgba(15,22,19,0.4) 70%, #0f1613 100%);
+  }
+  .hero-brand{
+    position:absolute;top:24px;left:40px;z-index:2;
+    font-weight:700;font-size:18px;letter-spacing:-0.3px;color:#fff;
+  }
+  .hero-brand span{color:#4ade80;}
+  .form-side{
+    flex:1;display:flex;align-items:center;justify-content:center;
+    padding:40px;position:relative;overflow-y:auto;
+  }
+  .back{
+    position:absolute;top:24px;right:40px;
+    color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;
+  }
+  .back:hover{color:#fff;}
+  .card{width:100%;max-width:400px;}
+  h1{font-size:36px;font-weight:700;letter-spacing:-1px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:28px;line-height:1.5;}
+  .field{margin-bottom:16px;}
+  label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:6px;}
+  input{
+    width:100%;background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 16px;
+    color:#fff;font-family:inherit;font-size:15px;outline:none;
+    transition:border 0.15s,background 0.15s;
+  }
+  input::placeholder{color:rgba(255,255,255,0.3);}
+  input:focus{border-color:#4ade80;background:rgba(74,222,128,0.05);}
+  input.invalid{border-color:#f87171;}
+  .hint{font-size:12px;color:rgba(255,255,255,0.35);margin-top:6px;}
+  .field-error{font-size:12px;color:#f87171;margin-top:6px;display:none;}
+  button{
+    width:100%;background:#4ade80;color:#0a2818;
+    font-family:inherit;font-size:15px;font-weight:600;
+    padding:14px;border:none;border-radius:8px;cursor:pointer;
+    transition:background 0.15s,opacity 0.15s;margin-top:12px;
+  }
+  button:hover{background:#3ec972;}
+  button:disabled{opacity:0.4;cursor:not-allowed;}
+  .error{color:#f87171;font-size:13px;margin-top:12px;display:none;}
+  .switch{margin-top:24px;font-size:14px;color:rgba(255,255,255,0.55);}
+  .switch a{color:#4ade80;text-decoration:none;font-weight:500;}
+  .switch a:hover{text-decoration:underline;}
+  @media (max-width: 768px){
+    body{flex-direction:column;overflow-y:auto;height:auto;min-height:100vh;}
+    .hero{height:200px;flex:none;}
+    .form-side{padding:32px 24px;}
+  }
+</style>
+</head>
+<body>
+<div class="hero"><div class="hero-brand">Guess<span>ZA</span></div></div>
+<div class="form-side">
+  <a href="index.html" class="back">← Back</a>
+  <form class="card" id="registerForm" novalidate>
+    <h1>Create an account</h1>
+    <p class="sub">Your scores and stats are saved to it.</p>
+
+    <div class="field">
+      <label for="username">Username</label>
+      <input id="username" type="text" autocomplete="username" maxlength="20" autofocus/>
+      <p class="hint">3–20 characters. You log in with this.</p>
+      <p class="field-error" id="err-username"></p>
+    </div>
+
+    <div class="field">
+      <label for="nickname">Nickname</label>
+      <input id="nickname" type="text" placeholder="e.g. Sipho, Thabo, Amahle" maxlength="20" autocomplete="nickname"/>
+      <p class="hint">Up to 20 characters. Shown on your scoreboard.</p>
+      <p class="field-error" id="err-nickname"></p>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input id="password" type="password" autocomplete="new-password"/>
+      <p class="hint">At least 8 characters.</p>
+      <p class="field-error" id="err-password"></p>
+    </div>
+
+    <button id="submitBtn" type="submit">Create account</button>
+    <p class="error" id="errorMsg" role="alert"></p>
+    <p class="switch">Already have an account? <a href="login.html">Log in</a></p>
+  </form>
+</div>
+<script src="/js/api.js"></script>
+<script>
+  if (isLoggedIn()) window.location.href = 'mode.html';
+
+  const FIELDS = ['username', 'nickname', 'password'];
+  // The same rules as CreateUserRequest on the server, so most mistakes never leave the page.
+  const MESSAGES = {
+    username: 'Username must be 3–20 characters.',
+    nickname: 'Nickname must be 1–20 characters.',
+    password: 'Password must be at least 8 characters.',
+  };
+  // The server reports the DTO field name; the register body calls the password `password_hash`.
+  const SERVER_FIELD = { username: 'username', nickname: 'nickname', password_hash: 'password' };
+
+  const form = document.getElementById('registerForm');
+  const btn = document.getElementById('submitBtn');
+  const err = document.getElementById('errorMsg');
+
+  function setFieldError(field, message){
+    const input = document.getElementById(field);
+    const el = document.getElementById(`err-${field}`);
+    input.classList.toggle('invalid', !!message);
+    el.textContent = message || '';
+    el.style.display = message ? 'block' : 'none';
+  }
+
+  function clearErrors(){
+    FIELDS.forEach(f => setFieldError(f, null));
+    err.style.display = 'none';
+  }
+
+  function validate({ username, nickname, password }){
+    let ok = true;
+    if (username.length < 3 || username.length > 20) { setFieldError('username', MESSAGES.username); ok = false; }
+    if (nickname.length < 1 || nickname.length > 20) { setFieldError('nickname', MESSAGES.nickname); ok = false; }
+    if (password.length < 8) { setFieldError('password', MESSAGES.password); ok = false; }
+    return ok;
+  }
+
+  FIELDS.forEach(f => document.getElementById(f).addEventListener('input', () => setFieldError(f, null)));
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    clearErrors();
+    const values = {
+      username: document.getElementById('username').value.trim(),
+      nickname: document.getElementById('nickname').value.trim(),
+      password: document.getElementById('password').value,
+    };
+    if (!validate(values)) return;
+
+    btn.disabled = true; btn.textContent = 'Creating account...';
+    try {
+      await api('/api/auth/register', {
+        method: 'POST',
+        auth: false,
+        // #18 contract: the plain password goes in `password_hash`; the server hashes it with BCrypt.
+        body: { username: values.username, password_hash: values.password, nickname: values.nickname },
+      });
+      // Registered: log straight in so the player doesn't type everything twice.
+      const { token } = await api('/api/auth/login', {
+        method: 'POST',
+        auth: false,
+        body: { username: values.username, password: values.password },
+      });
+      setToken(token);
+      window.location.href = 'mode.html';
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 409) {
+        setFieldError('username', 'That username is taken.');
+      } else if (e instanceof ApiError && e.status === 400) {
+        // ProblemDetail detail looks like "username size must be between 3 and 20".
+        const field = SERVER_FIELD[(e.detail || '').split(' ')[0]];
+        if (field) setFieldError(field, MESSAGES[field]);
+        else { err.textContent = e.detail || 'Please check your details.'; err.style.display = 'block'; }
+      } else {
+        err.textContent = 'Something went wrong. Is the server running?';
+        err.style.display = 'block';
+      }
+      btn.disabled = false; btn.textContent = 'Create account';
+    }
+  });
+</script>
+</body>
+</html>

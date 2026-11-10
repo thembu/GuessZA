@@ -77,8 +77,9 @@
   </div>
 </div>
 
+<script src="/js/api.js"></script>
 <script>
-  const API = 'http://localhost:8080';
+  requireLogin();
   let guessMap, guessMarker, panorama;
   let currentRoundId, currentRoundNum;
   let guessLat = null, guessLng = null;
@@ -142,8 +143,7 @@
 
   async function loadRound(){
     const gameId = localStorage.getItem('gameId');
-    const res = await fetch(`${API}/api/games/${gameId}/current-round`);
-    const round = await res.json();
+    const round = await api(`/api/games/${gameId}/current-round`);
     currentRoundId = round.roundId;
     currentRoundNum = round.roundNumber;
     initStreetView(round.latitude, round.longitude);
@@ -156,12 +156,10 @@
     guessSubmitted = true;
     document.getElementById('guessBtn').disabled = true;
     clearInterval(timerInterval);
-    const res = await fetch(`${API}/api/rounds/${currentRoundId}/guess`, {
+    const guessResult = await api(`/api/rounds/${currentRoundId}/guess`, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({guessLatitude: guessLat, guessLongitude: guessLng})
+      body:{ guessLatitude: guessLat, guessLongitude: guessLng }
     });
-    const guessResult = await res.json();
     localStorage.setItem('lastResult', JSON.stringify(guessResult));
     localStorage.setItem('guessLat', guessLat);
     localStorage.setItem('guessLng', guessLng);
@@ -170,13 +168,6 @@
     localStorage.setItem('totalScore', guessResult.totalScore);
     visited_locations.push(guessResult.locationName);
     localStorage.setItem('visitedLocations', JSON.stringify(visited_locations));
-    if(guessResult.gameOver){
-      const user = localStorage.getItem('userId');
-      const userRes = await fetch(`${API}/api/users/${user}`);
-      const userResult = await userRes.json();
-      localStorage.setItem('highScore', userResult.highScore);
-      localStorage.setItem('gamesPlayed', userResult.gamesPlayed);
-    }
     window.location.href = 'result.html';
   }
 </script>

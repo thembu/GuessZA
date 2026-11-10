@@ -64,8 +64,9 @@
 </div>
 <div class="loading-overlay" id="loading">Starting game…</div>
 
+<script src="/js/api.js"></script>
 <script>
-  const API = 'http://localhost:8080';
+  requireLogin();
 
   // ============================================================
   // PROVINCE IMAGES — replace each `image` path below.
@@ -108,17 +109,11 @@
   });
 
   async function startProvinceGame(province){
-    const userId = localStorage.getItem('userId');
-    if(!userId){ window.location.href = 'nickname.html'; return; }
     document.getElementById('loading').classList.add('show');
     try{
-      const res = await fetch(`${API}/api/games/province`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ userId,province: province.value })
-      });
-      if(!res.ok) throw new Error('game create failed');
-      const game = await res.json();
+      const me = await getMe();
+      // TODO(#19): drop userId once the server takes the player from the token
+      const game = await api('/api/games/province', { method:'POST', body:{ userId: me.id, province: province.value } });
       if(game.locationsExhausted){
       alert("You've explored every location in this mode! we need to reload them now click again");
       window.location.href = 'mode.html';
