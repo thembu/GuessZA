@@ -37,8 +37,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorizeHttp -> {
                             authorizeHttp.requestMatchers("/api/auth/**" , "/error").permitAll(); //auth requests do not need to be authenticated
-                            authorizeHttp.anyRequest().authenticated(); //all other requests do
                             authorizeHttp.requestMatchers("/", "/*.html", "/js/**", "/images/**", "/*.mp3").permitAll();
+                            authorizeHttp.anyRequest().authenticated(); //all other requests do
                         }
                 ).csrf(csrf -> csrf.disable()) //disable csrf attack protection
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
