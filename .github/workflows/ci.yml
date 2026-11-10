@@ -16,6 +16,8 @@ jobs:
         POSTGRES_USER: guessza
         POSTGRES_PASSWORD: guessza
         GOOGLE_MAPS_API_KEY: ci-dummy-key
+        # base64 of "ci-dummy-jwt-secret-not-for-production-use" (42 bytes, HS256 needs >= 32)
+        JWT_SECRET: Y2ktZHVtbXktand0LXNlY3JldC1ub3QtZm9yLXByb2R1Y3Rpb24tdXNl
 
       services:
         postgres:

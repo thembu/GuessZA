@@ -38,6 +38,7 @@ public class SecurityConfig {
                         authorizeHttp -> {
                             authorizeHttp.requestMatchers("/api/auth/**" , "/error").permitAll(); //auth requests do not need to be authenticated
                             authorizeHttp.anyRequest().authenticated(); //all other requests do
+                            authorizeHttp.requestMatchers("/", "/*.html", "/js/**", "/images/**", "/*.mp3").permitAll();
                         }
                 ).csrf(csrf -> csrf.disable()) //disable csrf attack protection
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -67,7 +68,7 @@ public class SecurityConfig {
         return  new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+                User user = userRepository.findUserByUsername(username).orElseThrow(() -> new UsernameNotFoundException(username));
 
                 return org.springframework.security.core.userdetails.User.
                         withUsername(user.getUsername())

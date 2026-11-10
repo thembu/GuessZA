@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -40,17 +41,23 @@ public class JwtFilter extends OncePerRequestFilter {
 
             //check that the jwt token is valid (not expired , or tempered with)
              if(jwtUtil.isTokenValid(token)) {
-                 //extract username and use it to load user from user details service
-                  String username = jwtUtil.extractUsername(token);
-                  UserDetails user =  userDetailsService.loadUserByUsername(username);
 
-                 // Token is valid: mark this request as authenticated.
-                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user , null , null);
-                 //attach request info t for logging e.g(ip , session id)
-                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                 try {
+                     //extract username and use it to load user from user details service
+                     String username = jwtUtil.extractUsername(token);
+                     UserDetails user = userDetailsService.loadUserByUsername(username);
 
-                 //mark as logged in
-                 SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                     // Token is valid: mark this request as authenticated.
+                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(user, null, null);
+                     //attach request info t for logging e.g(ip , session id)
+                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                     //mark as logged in
+                     SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                 }catch (UsernameNotFoundException e) {
+                 }
 
              }
         }
