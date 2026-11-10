@@ -13,6 +13,12 @@
   .brand span{color:#4ade80;}
   .back{color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;}
   .back:hover{color:#fff;}
+  .nav-right{display:flex;align-items:center;gap:20px;font-size:13px;}
+  .who{color:rgba(255,255,255,0.75);}
+  .who strong{color:#fff;font-weight:600;}
+  .who .stats{color:rgba(255,255,255,0.45);margin-left:8px;}
+  .logout{background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.75);font-family:inherit;font-size:13px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .logout:hover{color:#fff;border-color:#fff;}
   .container{max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
   h1{font-size:40px;font-weight:700;letter-spacing:-1.2px;margin-bottom:8px;}
   .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:40px;}
@@ -61,7 +67,10 @@
 <body>
 <div class="topnav">
   <div class="brand">Guess<span>ZA</span></div>
-  <a href="index.html" class="back">← Back</a>
+  <div class="nav-right">
+    <span class="who"><strong id="who">…</strong><span class="stats" id="stats"></span></span>
+    <button class="logout" onclick="logout()">Log out</button>
+  </div>
 </div>
 <div class="container">
   <h1>Choose your mode</h1>
@@ -87,8 +96,16 @@
     </a>
   </div>
 </div>
+<script src="/js/api.js"></script>
 <script>
-  const API = 'http://localhost:8080';
+  requireLogin();
+
+  getMe().then(me => {
+    document.getElementById('who').textContent = me.nickname;
+    document.getElementById('stats').textContent =
+      `best ${(me.highScore || 0).toLocaleString()} · ${me.gamesPlayed || 0} games`;
+  });
+
   let visited_locations = [];
   try{
     const stored = JSON.parse(localStorage.getItem('visitedLocations'));
@@ -96,16 +113,10 @@
   }catch(e){}
 
   async function startStandard(){
-    const userId = localStorage.getItem('userId');
-    if(!userId){ window.location.href = 'nickname.html'; return; }
     try{
-      const res = await fetch(`${API}/api/games`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ userId, province: null })
-      });
-      if(!res.ok) throw new Error('game create failed');
-      const game = await res.json();
+      const me = await getMe();
+      // TODO(#19): drop userId once the server takes the player from the token
+      const game = await api('/api/games', { method:'POST', body:{ userId: me.id } });
       if(game.locationsExhausted){
       alert("You've explored every location in this mode! we need to reload them now click again");
       window.location.href = 'mode.html';

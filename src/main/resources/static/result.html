@@ -83,7 +83,9 @@
   </div>
 </div>
 
+<script src="/js/api.js"></script>
 <script>
+  requireLogin();
   function formatDistance(m){
     if(m >= 1000) return (m/1000).toFixed(1) + ' km';
     return m + ' m';

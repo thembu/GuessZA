@@ -87,8 +87,9 @@
     <a href="index.html" class="home-link">Back to home</a>
   </div>
 </div>
+<script src="/js/api.js"></script>
 <script>
-  const API = 'http://localhost:8080';
+  requireLogin();
 
   let visited_locations = [];
   try{
@@ -99,10 +100,7 @@
   async function loadEndScreen(){
     new Audio('/sound-pointcount.mp3').play().catch(()=>{});
     const totalScore = localStorage.getItem('totalScore') || '0';
-    const nickname = localStorage.getItem('nickname') || 'player';
-    const userId = localStorage.getItem('userId');
     document.getElementById('totalScore').textContent = parseInt(totalScore).toLocaleString();
-    document.getElementById('nickname').textContent = nickname;
 
     // Update Play Again button label with the mode context
     const lastMode = localStorage.getItem('lastMode');
@@ -114,38 +112,26 @@
       }catch(e){}
     }
 
-    if(userId){
-      try{
-        const res = await fetch(`${API}/api/users/${userId}`);
-        const user = await res.json();
-        document.getElementById('highScore').textContent = (user.highScore || 0).toLocaleString();
-      }catch(e){}
-    }
+    try{
+      const me = await getMe();
+      document.getElementById('nickname').textContent = me.nickname;
+      document.getElementById('highScore').textContent = (me.highScore || 0).toLocaleString();
+    }catch(e){}
   }
 
   async function playAgain(){
-  const userId = localStorage.getItem('userId');
-  if(!userId){ window.location.href = 'index.html'; return; }
   const lastMode = localStorage.getItem('lastMode');
   try{
-    let res;
+    const me = await getMe();
+    let game;
+    // TODO(#19): drop userId once the server takes the player from the token
     if(lastMode === 'province'){
       const p = JSON.parse(localStorage.getItem('lastProvince'));
       if(!p || !p.value){ window.location.href = 'mode.html'; return; }
-      res = await fetch(`${API}/api/games/province`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ userId,  province: p.value })
-      });
+      game = await api('/api/games/province', { method:'POST', body:{ userId: me.id, province: p.value } });
     }else{
-      res = await fetch(`${API}/api/games`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ userId, province: null })
-      });
+      game = await api('/api/games', { method:'POST', body:{ userId: me.id } });
     }
-    if(!res.ok) throw new Error('game create failed');
-    const game = await res.json();
 
     // NEW: locations exhausted for this mode/province
     if(game.locationsExhausted){
