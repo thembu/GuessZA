@@ -15,6 +15,7 @@ public record CreateUserRequest(
         String username,
 
         @Size(min = 8)
+        @NotBlank
         String password_hash
 ) {
 
