@@ -1,12 +1,11 @@
 package com.thembu.guessza.common;
 
-import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.thembu.guessza.game.GameNotFoundException;
-import com.thembu.guessza.location.InsufficientLocationsException;
 import com.thembu.guessza.round.RoundAlreadyAnswered;
 import com.thembu.guessza.round.RoundFromCompletedGame;
 import com.thembu.guessza.round.RoundNotFoundException;
+import com.thembu.guessza.round.RoundNotYoursException;
 import com.thembu.guessza.user.UserAlreadyExists;
 import com.thembu.guessza.user.UserNotFoundException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -14,13 +13,10 @@ import org.springframework.http.HttpStatus;
 
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.View;
 
 import java.util.Arrays;
 
@@ -72,9 +68,15 @@ public class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed request body");
     }
 
+
     @ExceptionHandler(RoundAlreadyAnswered.class)
     public ProblemDetail handleRoundAlreadyAnswered(RoundAlreadyAnswered ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(RoundNotYoursException.class)
+    public ProblemDetail handleRoundNotYours(RoundNotYoursException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN , ex.getMessage());
     }
 
     //intercepts optimistic locking failure exception and gives out custom error for it used to prevent two round guesses happening at same time

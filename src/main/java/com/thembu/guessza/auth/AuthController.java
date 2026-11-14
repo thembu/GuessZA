@@ -37,6 +37,8 @@ public class AuthController {
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public LoginResponse login(@RequestBody @Valid LoginRequest request) {
+
+        //does loadbyusername plus password check automatically for you
         Authentication auth  = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username() , request.password())
         );

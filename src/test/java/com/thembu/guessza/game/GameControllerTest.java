@@ -25,8 +25,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = GameController.class)
 @Import(SecurityConfig.class) // run through the real security rules, not Boot's defaults
-@WithMockUser               // these endpoints all require a logged-in user
+@WithMockUser(username = GameControllerTest.USERNAME) // these endpoints all require a logged-in user
 class GameControllerTest {
+
+    // the controller must pass the logged-in user's name through to the service
+    static final String USERNAME = "player";
 
     // SecurityConfig and JwtFilter need these, and the web slice doesn't load them
     @MockitoBean
@@ -47,7 +50,7 @@ class GameControllerTest {
     @Test
     void unknownGameReturns404() throws Exception {
         UUID id = UUID.randomUUID();
-        when(roundService.getCurrentRound(id)).thenThrow(new GameNotFoundException(id));
+        when(roundService.getCurrentRound(id, USERNAME)).thenThrow(new GameNotFoundException(id));
 
         mockMvc.perform(get("/api/games/{id}/current-round", id))
                 .andExpect(status().isNotFound());
@@ -56,7 +59,7 @@ class GameControllerTest {
     @Test
     void completedGameReturns410() throws Exception {
         UUID id = UUID.randomUUID();
-        when(roundService.getCurrentRound(id)).thenThrow(new RoundFromCompletedGame(id));
+        when(roundService.getCurrentRound(id, USERNAME)).thenThrow(new RoundFromCompletedGame(id));
 
         mockMvc.perform(get("/api/games/{id}/current-round", id))
                 .andExpect(status().isGone());
@@ -66,7 +69,7 @@ class GameControllerTest {
     @Test
     void errorBodyIsProblemDetail() throws Exception {
         UUID id = UUID.randomUUID();
-        when(roundService.getCurrentRound(id)).thenThrow(new GameNotFoundException(id));
+        when(roundService.getCurrentRound(id, USERNAME)).thenThrow(new GameNotFoundException(id));
 
         mockMvc.perform(get("/api/games/{id}/current-round", id))
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))

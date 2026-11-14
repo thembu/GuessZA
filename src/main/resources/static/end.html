@@ -122,15 +122,14 @@
   async function playAgain(){
   const lastMode = localStorage.getItem('lastMode');
   try{
-    const me = await getMe();
     let game;
-    // TODO(#19): drop userId once the server takes the player from the token
+    // the server takes the player from the token (#19), so no userId is sent
     if(lastMode === 'province'){
       const p = JSON.parse(localStorage.getItem('lastProvince'));
       if(!p || !p.value){ window.location.href = 'mode.html'; return; }
-      game = await api('/api/games/province', { method:'POST', body:{ userId: me.id, province: p.value } });
+      game = await api('/api/games/province', { method:'POST', body:{ province: p.value } });
     }else{
-      game = await api('/api/games', { method:'POST', body:{ userId: me.id } });
+      game = await api('/api/games', { method:'POST' });
     }
 
     // NEW: locations exhausted for this mode/province

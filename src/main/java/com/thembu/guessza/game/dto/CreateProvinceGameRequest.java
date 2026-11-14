@@ -8,9 +8,6 @@ import java.util.UUID;
 public record CreateProvinceGameRequest(
 
         @NotNull(message = "must not be null")
-        UUID userId,
-
-        @NotNull(message = "must not be null")
         Province province
 
 ) {

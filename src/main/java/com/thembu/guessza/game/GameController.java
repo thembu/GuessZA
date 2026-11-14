@@ -8,6 +8,8 @@ import com.thembu.guessza.round.RoundService;
 import com.thembu.guessza.round.dto.RoundResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -27,20 +29,20 @@ public class GameController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public GameResponse createGame(@RequestBody @Valid CreateGameRequest request) {
-        return  gameService.createGame(request);
+    public GameResponse createGame(@AuthenticationPrincipal UserDetails principal) {
+        return  gameService.createGame(principal.getUsername());
     }
 
     @PostMapping("/province")
     @ResponseStatus(HttpStatus.CREATED)
-    public  GameResponse createProvinceGame(@RequestBody @Valid CreateProvinceGameRequest request){
-        return  gameService.createProvinceGame(request);
+    public  GameResponse createProvinceGame(@RequestBody @Valid CreateProvinceGameRequest request ,  @AuthenticationPrincipal UserDetails principal){
+        return  gameService.createProvinceGame(request , principal.getUsername());
     }
 
     @GetMapping("/{id}/current-round")
     @ResponseStatus(HttpStatus.OK)
-    public RoundResponse getCurrentRound(@PathVariable UUID id) {
-        return roundService.getCurrentRound(id);
+    public RoundResponse getCurrentRound(@PathVariable UUID id , @AuthenticationPrincipal UserDetails principal) {
+        return roundService.getCurrentRound(id , principal.getUsername());
     } 
 
 }
