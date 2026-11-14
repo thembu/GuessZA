@@ -114,9 +114,8 @@
 
   async function startStandard(){
     try{
-      const me = await getMe();
-      // TODO(#19): drop userId once the server takes the player from the token
-      const game = await api('/api/games', { method:'POST', body:{ userId: me.id } });
+      // no body: the server starts the game for the player in the token (#19)
+      const game = await api('/api/games', { method:'POST' });
       if(game.locationsExhausted){
       alert("You've explored every location in this mode! we need to reload them now click again");
       window.location.href = 'mode.html';

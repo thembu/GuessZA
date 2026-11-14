@@ -111,9 +111,8 @@
   async function startProvinceGame(province){
     document.getElementById('loading').classList.add('show');
     try{
-      const me = await getMe();
-      // TODO(#19): drop userId once the server takes the player from the token
-      const game = await api('/api/games/province', { method:'POST', body:{ userId: me.id, province: province.value } });
+      // the server takes the player from the token (#19), so only the province is sent
+      const game = await api('/api/games/province', { method:'POST', body:{ province: province.value } });
       if(game.locationsExhausted){
       alert("You've explored every location in this mode! we need to reload them now click again");
       window.location.href = 'mode.html';
