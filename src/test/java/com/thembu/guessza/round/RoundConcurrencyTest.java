@@ -101,7 +101,8 @@ class RoundConcurrencyTest {
                     ready.countDown();
                     try {
                         go.await(); //release every thread at the same instant
-                        roundService.submitGuess(round.getId(), new GuessRequest(-26.2, 28.05));
+                        //guess as the game's owner, so the ownership check passes
+                        roundService.submitGuess(round.getId(), new GuessRequest(-26.2, 28.05), user.getUsername());
                         successes.incrementAndGet();
                     } catch (Throwable t) {
                         failures.add(t);

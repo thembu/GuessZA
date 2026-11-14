@@ -35,8 +35,10 @@ public class RoundService {
     }
 
     @Transactional(readOnly = true)
-    public RoundResponse getCurrentRound(UUID gameId) {
+    public RoundResponse getCurrentRound(UUID gameId , String authUsername) {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+
+        if(!game.getUser().getUsername().equals(authUsername)) throw new RoundNotYoursException(gameId);
 
         //check if game is completed first
 
@@ -57,7 +59,8 @@ public class RoundService {
     }
 
     @Transactional
-    public GuessResponse submitGuess(UUID roundId ,GuessRequest request) {
+    public GuessResponse submitGuess(UUID roundId ,GuessRequest request , String authUserbame) {
+
         //validate game & round  exists and is not answered
         Round round = roundRepository.findById(roundId).orElseThrow(() -> new RoundNotFoundException(roundId));
 
@@ -67,6 +70,9 @@ public class RoundService {
         Game game = gameRepository.findById(round.getGame().getId()).orElseThrow(() -> new GameNotFoundException(round.getGame().getId()));
 
         User user  = userRepository.findById(game.getUser().getId()).orElseThrow(() -> new UserNotFoundException(game.getUser().getId()));
+
+        //check if authed user owns round
+        if(!user.getUsername().equals(authUserbame)) throw new RoundNotYoursException(roundId);
 
         //save both locations in a coordinate
         Coordinate location  = new Coordinate(round.getLocation().getLatitude() , round.getLocation().getLongitude());

@@ -24,8 +24,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = RoundController.class)
 @Import(SecurityConfig.class) // run through the real security rules, not Boot's defaults
-@WithMockUser               // these endpoints all require a logged-in user
+@WithMockUser(username = RoundControllerTest.USERNAME) // these endpoints all require a logged-in user
 class RoundControllerTest {
+
+    // the controller must pass the logged-in user's name through to the service
+    static final String USERNAME = "player";
 
     // SecurityConfig and JwtFilter need these, and the web slice doesn't load them
     @MockitoBean
@@ -47,7 +50,7 @@ class RoundControllerTest {
     @Test
     void unknownRoundReturns404() throws Exception {
         UUID id = UUID.randomUUID();
-        when(roundService.submitGuess(eq(id), any())).thenThrow(new RoundNotFoundException(id));
+        when(roundService.submitGuess(eq(id), any(), eq(USERNAME))).thenThrow(new RoundNotFoundException(id));
 
         mockMvc.perform(post("/api/rounds/{id}/guess", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -59,7 +62,7 @@ class RoundControllerTest {
     @Test
     void alreadyAnsweredRoundReturns409() throws Exception {
         UUID id = UUID.randomUUID();
-        when(roundService.submitGuess(eq(id), any())).thenThrow(new RoundAlreadyAnswered(id));
+        when(roundService.submitGuess(eq(id), any(), eq(USERNAME))).thenThrow(new RoundAlreadyAnswered(id));
 
         mockMvc.perform(post("/api/rounds/{id}/guess", id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -71,7 +74,7 @@ class RoundControllerTest {
     void versionConflictReturns409() throws Exception {
         UUID id = UUID.randomUUID();
         //plain parent type on purpose: the handler must catch every subclass, not just Hibernate's
-        when(roundService.submitGuess(eq(id), any()))
+        when(roundService.submitGuess(eq(id), any(), eq(USERNAME)))
                 .thenThrow(new OptimisticLockingFailureException("stale round"));
 
         mockMvc.perform(post("/api/rounds/{id}/guess", id)

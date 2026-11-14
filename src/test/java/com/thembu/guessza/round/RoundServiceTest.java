@@ -6,7 +6,9 @@ import com.thembu.guessza.game.GameRepository;
 import com.thembu.guessza.location.Location;
 import com.thembu.guessza.location.LocationRepository;
 import com.thembu.guessza.round.dto.RoundResponse;
+import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -32,14 +34,24 @@ class RoundServiceTest {
             mock(UserRepository.class),
             mock(LocationRepository.class));
 
+    private static final String USERNAME = "player";
+
     private final UUID gameId = UUID.randomUUID();
     private final Game game = new Game();
+
+    //getCurrentRound checks the game belongs to the caller, so the game needs an owner
+    @BeforeEach
+    void setUp() {
+        User owner = new User();
+        owner.setUsername(USERNAME);
+        game.setUser(owner);
+    }
 
     @Test
     void currentRoundOfUnknownGameThrowsGameNotFound() {
         when(gameRepository.findById(gameId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> roundService.getCurrentRound(gameId))
+        assertThatThrownBy(() -> roundService.getCurrentRound(gameId, USERNAME))
                 .isInstanceOf(GameNotFoundException.class);
     }
 
@@ -51,7 +63,7 @@ class RoundServiceTest {
         when(gameRepository.findById(gameId)).thenReturn(Optional.of(game));
         when(roundRepository.findByGame(game)).thenReturn(rounds);
 
-        assertThatThrownBy(() -> roundService.getCurrentRound(gameId))
+        assertThatThrownBy(() -> roundService.getCurrentRound(gameId, USERNAME))
                 .isInstanceOf(RoundFromCompletedGame.class);
     }
 
@@ -65,7 +77,7 @@ class RoundServiceTest {
         when(roundRepository.findFirstByGameAndAnsweredAtIsNullOrderByRoundNumberAsc(game))
                 .thenReturn(Optional.of(unanswered));
 
-        RoundResponse response = roundService.getCurrentRound(gameId);
+        RoundResponse response = roundService.getCurrentRound(gameId, USERNAME);
 
         assertThat(response.roundNumber()).isEqualTo(2);
         assertThat(response.latitude()).isEqualTo(-26.2);

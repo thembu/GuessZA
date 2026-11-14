@@ -41,8 +41,8 @@ public class GameController {
 
     @GetMapping("/{id}/current-round")
     @ResponseStatus(HttpStatus.OK)
-    public RoundResponse getCurrentRound(@PathVariable UUID id) {
-        return roundService.getCurrentRound(id);
+    public RoundResponse getCurrentRound(@PathVariable UUID id , @AuthenticationPrincipal UserDetails principal) {
+        return roundService.getCurrentRound(id , principal.getUsername());
     } 
 
 }
