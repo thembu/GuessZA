@@ -11,6 +11,7 @@ import com.thembu.guessza.round.RoundRepository;
 import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,29 +70,33 @@ public class GameService {
     }
 
     @Transactional
-    public GameResponse createGame(CreateGameRequest request) {
+    public GameResponse createGame(String username) {
 
         //create new instance of game entity, add user/player for that game and save it
         Game game = new Game();
 
-        User user = userRepository.findById(request.userId()).orElseThrow(()-> new UserNotFoundException(request.userId()));
+        User user = userRepository.findUserByUsername(username).orElseThrow(()-> new UserNotFoundException(username));
 
         game.setUser(user);
 
-        return startGame( request.userId(), game , locationService.getRandomLocations(ROUNDS_PER_GAME, request.userId()));
+        UUID userId = user.getId();
+
+        return startGame( userId, game , locationService.getRandomLocations(ROUNDS_PER_GAME, userId));
 
     }
 
 
     @Transactional
-    public  GameResponse createProvinceGame(CreateProvinceGameRequest request) {
+    public  GameResponse createProvinceGame(CreateProvinceGameRequest request ,  String username) {
         Game game = new Game();
 
-        User user = userRepository.findById(request.userId()).orElseThrow(()-> new UserNotFoundException(request.userId()));
+        User user = userRepository.findUserByUsername(username).orElseThrow(()-> new UsernameNotFoundException(username));
 
         game.setUser(user);
 
-        return startGame( request.userId(), game , locationService.getLocationByProvince(request.province(),ROUNDS_PER_GAME, request.userId()));
+        UUID userId = user.getId();
+
+        return startGame( userId, game , locationService.getLocationByProvince(request.province(),ROUNDS_PER_GAME, userId));
 
     }
 
