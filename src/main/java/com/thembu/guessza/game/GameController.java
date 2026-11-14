@@ -29,7 +29,7 @@ public class GameController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public GameResponse createGame(@AuthenticationPrincipal @Valid UserDetails principal) {
+    public GameResponse createGame(@AuthenticationPrincipal UserDetails principal) {
         return  gameService.createGame(principal.getUsername());
     }
 

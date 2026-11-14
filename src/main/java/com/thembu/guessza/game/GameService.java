@@ -90,7 +90,7 @@ public class GameService {
     public  GameResponse createProvinceGame(CreateProvinceGameRequest request ,  String username) {
         Game game = new Game();
 
-        User user = userRepository.findUserByUsername(username).orElseThrow(()-> new UsernameNotFoundException(username));
+        User user = userRepository.findUserByUsername(username).orElseThrow(()-> new UserNotFoundException(username));
 
         game.setUser(user);
 

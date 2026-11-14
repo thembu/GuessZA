@@ -76,7 +76,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(RoundNotYoursException.class)
     public ProblemDetail handleRoundNotYours(RoundNotYoursException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN , "Round From Another user's game");
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN , ex.getMessage());
     }
 
     //intercepts optimistic locking failure exception and gives out custom error for it used to prevent two round guesses happening at same time

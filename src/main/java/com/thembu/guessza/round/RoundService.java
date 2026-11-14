@@ -59,10 +59,13 @@ public class RoundService {
     }
 
     @Transactional
-    public GuessResponse submitGuess(UUID roundId ,GuessRequest request , String authUserbame) {
+    public GuessResponse submitGuess(UUID roundId ,GuessRequest request , String authUsername) {
 
         //validate game & round  exists and is not answered
         Round round = roundRepository.findById(roundId).orElseThrow(() -> new RoundNotFoundException(roundId));
+
+        if (!round.getGame().getUser().getUsername().equals(authUsername)) throw new RoundNotYoursException(roundId);
+
 
         if(round.getAnsweredAt() != null) throw  new RoundAlreadyAnswered(roundId);
 
@@ -72,7 +75,6 @@ public class RoundService {
         User user  = userRepository.findById(game.getUser().getId()).orElseThrow(() -> new UserNotFoundException(game.getUser().getId()));
 
         //check if authed user owns round
-        if(!user.getUsername().equals(authUserbame)) throw new RoundNotYoursException(roundId);
 
         //save both locations in a coordinate
         Coordinate location  = new Coordinate(round.getLocation().getLatitude() , round.getLocation().getLongitude());

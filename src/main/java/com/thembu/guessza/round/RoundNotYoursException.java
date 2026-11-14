@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public class RoundNotYoursException extends RuntimeException {
     public RoundNotYoursException(UUID id) {
-        super( id + " is from a game that is is not yours");
+        super( id + "belongs to another player");
     }
 }
