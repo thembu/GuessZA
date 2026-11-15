@@ -44,7 +44,7 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    @ApiResponse(responseCode = "200" , description = "Logged in  successfully" , content = @Content(schema = @Schema(implementation = UserResponse.class)))
+    @ApiResponse(responseCode = "200" , description = "Logged in  successfully" , content = @Content(schema = @Schema(implementation = LoginResponse.class)))
     @ApiResponse(responseCode = "401", description = "User not Authorized", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     public LoginResponse login(@RequestBody @Valid LoginRequest request) {
 

@@ -33,6 +33,9 @@ public class RoundController {
     @ResponseStatus(HttpStatus.OK)
     @ApiResponse(responseCode = "200" , description = "Guess submitted successfully" , content = @Content(schema = @Schema(implementation = GuessResponse.class)))
     @ApiResponse(responseCode = "404", description = "Round not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid guess coordinates", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "403", description = "Round belongs to another user", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "409", description = "Round already answered, or a concurrent guess won the race", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     public GuessResponse submitGuess(@PathVariable UUID roundId , @Valid @RequestBody GuessRequest request , @AuthenticationPrincipal UserDetails principal) {
 
         return roundService.submitGuess(roundId , request , principal.getUsername());

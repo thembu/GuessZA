@@ -41,7 +41,7 @@ public class GameController {
 
     //for documentation
     @Operation(summary = "Create Standard 5 round game")
-    @ApiResponse(responseCode = "404", description = "Round not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     @ApiResponse(responseCode = "201" , description = "Standard game created" , content = @Content(schema = @Schema(implementation = GameResponse.class)))
     public GameResponse createGame(@AuthenticationPrincipal UserDetails principal) {
         return  gameService.createGame(principal.getUsername());
@@ -62,7 +62,9 @@ public class GameController {
 
     @Operation(summary = "Fetch current round in game with {id}")
     @ApiResponse(responseCode = "200" , description = "Current round fetched successfully" , content = @Content(schema = @Schema(implementation = RoundResponse.class)))
-    @ApiResponse(responseCode = "404", description = "Round not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "404", description = "Game not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "403", description = "Game belongs to another user", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "410", description = "Game is already completed", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     public RoundResponse getCurrentRound(@PathVariable UUID id , @AuthenticationPrincipal UserDetails principal) {
         return roundService.getCurrentRound(id , principal.getUsername());
     } 
