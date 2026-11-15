@@ -72,6 +72,13 @@ Go to [http://localhost:8080](http://localhost:8080)
 
 ---
 
+## API documentation
+
+Start the app with `./mvnw spring-boot:run`, then open:
+
+- Swagger UI: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- OpenAPI spec (JSON): [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
 ## Notes
 
 - To reset the database and reseed from scratch: `docker compose down -v && docker compose up --build` (this deletes all users and games)
