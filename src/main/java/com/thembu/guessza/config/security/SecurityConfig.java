@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorizeHttp -> {
                             authorizeHttp.requestMatchers("/api/auth/**" , "/error").permitAll(); //auth requests do not need to be authenticated
-                            authorizeHttp.requestMatchers("/", "/*.html", "/js/**", "/images/**", "/*.mp3").permitAll();
+                            authorizeHttp.requestMatchers("/", "/*.html", "/js/**", "/images/**", "/*.mp3", "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll();
                             authorizeHttp.anyRequest().authenticated(); //all other requests do
                         }
                 ).csrf(csrf -> csrf.disable()) //disable csrf attack protection

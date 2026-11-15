@@ -3,6 +3,7 @@ package com.thembu.guessza.round;
 
 import com.thembu.guessza.round.dto.GuessRequest;
 import com.thembu.guessza.round.dto.GuessResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @RestController
 @CrossOrigin
 @RequestMapping("/api/rounds")
+@SecurityRequirement(name = "bearerAuth")
 public class RoundController {
 
     private final RoundService roundService;

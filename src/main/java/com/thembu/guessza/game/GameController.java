@@ -6,6 +6,7 @@ import com.thembu.guessza.game.dto.CreateProvinceGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.round.RoundService;
 import com.thembu.guessza.round.dto.RoundResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/games")
 @CrossOrigin
+@SecurityRequirement(name = "bearerAuth")
 public class GameController {
 
     private final GameService gameService;
