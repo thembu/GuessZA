@@ -3,11 +3,16 @@ package com.thembu.guessza.auth;
 import com.thembu.guessza.auth.dto.LoginRequest;
 import com.thembu.guessza.auth.dto.LoginResponse;
 import com.thembu.guessza.config.JwtUtil;
+import com.thembu.guessza.round.dto.RoundResponse;
 import com.thembu.guessza.user.UserService;
 import com.thembu.guessza.user.dto.CreateUserRequest;
 import com.thembu.guessza.user.dto.UserResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -30,12 +35,17 @@ public class AuthController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/register")
+    @ApiResponse(responseCode = "201" , description = "User Created  successfully" , content = @Content(schema = @Schema(implementation = UserResponse.class)))
+    @ApiResponse(responseCode = "409", description = "User Already exists", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+
     public UserResponse createUser(@RequestBody @Valid CreateUserRequest request) {
         return  userService.createUser(request);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
+    @ApiResponse(responseCode = "200" , description = "Logged in  successfully" , content = @Content(schema = @Schema(implementation = UserResponse.class)))
+    @ApiResponse(responseCode = "401", description = "User not Authorized", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     public LoginResponse login(@RequestBody @Valid LoginRequest request) {
 
         //does loadbyusername plus password check automatically for you
