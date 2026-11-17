@@ -1,6 +1,6 @@
 package com.thembu.guessza.game;
 
-import com.thembu.guessza.game.dto.CreateGameRequest;
+import com.thembu.guessza.game.dto.CreateDifficultyGameRequest;
 import com.thembu.guessza.game.dto.CreateProvinceGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.location.Location;
@@ -97,6 +97,22 @@ public class GameService {
         UUID userId = user.getId();
 
         return startGame( userId, game , locationService.getLocationByProvince(request.province(),ROUNDS_PER_GAME, userId));
+
+    }
+
+    @Transactional
+    public  GameResponse createDifficultyGame(CreateDifficultyGameRequest request, String username) {
+
+        Game game = new Game();
+
+        User user = userRepository.findUserByUsername(username).orElseThrow(()-> new UserNotFoundException(username));
+
+        game.setUser(user);
+
+        UUID userId = user.getId();
+
+        return startGame( userId, game , locationService.getLocationByDifficulty(request.difficulty(),ROUNDS_PER_GAME, userId));
+
 
     }
 

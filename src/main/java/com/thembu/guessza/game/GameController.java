@@ -1,7 +1,7 @@
 package com.thembu.guessza.game;
 
 
-import com.thembu.guessza.game.dto.CreateGameRequest;
+import com.thembu.guessza.game.dto.CreateDifficultyGameRequest;
 import com.thembu.guessza.game.dto.CreateProvinceGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.round.RoundNotFoundException;
@@ -57,6 +57,16 @@ public class GameController {
         return  gameService.createProvinceGame(request , principal.getUsername());
     }
 
+    @PostMapping("/difficulty")
+    @ResponseStatus(HttpStatus.CREATED)
+
+    @Operation(summary = "Create difficulty based game")
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "201" , description = "Difficulty  game created" , content = @Content(schema = @Schema(implementation = GameResponse.class)))
+    public  GameResponse createDifficultyGame(@RequestBody @Valid CreateDifficultyGameRequest request , @AuthenticationPrincipal UserDetails principal){
+        return  gameService.createDifficultyGame(request, principal.getUsername());
+    }
+
     @GetMapping("/{id}/current-round")
     @ResponseStatus(HttpStatus.OK)
 
@@ -67,6 +77,9 @@ public class GameController {
     @ApiResponse(responseCode = "410", description = "Game is already completed", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
     public RoundResponse getCurrentRound(@PathVariable UUID id , @AuthenticationPrincipal UserDetails principal) {
         return roundService.getCurrentRound(id , principal.getUsername());
-    } 
+    }
+
+
+
 
 }

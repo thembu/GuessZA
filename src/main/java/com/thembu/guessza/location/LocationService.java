@@ -27,7 +27,10 @@ public class LocationService {
         return  locationRepository.findRandomLocationsByProvince( province.name() , count , user_id);
     }
 
-
+   @Transactional(readOnly = true)
+    public List<Location> getLocationByDifficulty(Difficulty difficulty , int count , UUID user_id) {
+        return locationRepository.findRandomLocationsByDifficulty(difficulty.name() , count , user_id);
+   }
 
 
 
