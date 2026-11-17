@@ -110,6 +110,11 @@
         const p = JSON.parse(localStorage.getItem('lastProvince'));
         if(p && p.display) btn.textContent = `Play Again in ${p.display}`;
       }catch(e){}
+    }else if(lastMode === 'difficulty'){
+      try{
+        const d = JSON.parse(localStorage.getItem('lastDifficulty'));
+        if(d && d.display) btn.textContent = `Play Again on ${d.display}`;
+      }catch(e){}
     }
 
     try{
@@ -128,6 +133,10 @@
       const p = JSON.parse(localStorage.getItem('lastProvince'));
       if(!p || !p.value){ window.location.href = 'mode.html'; return; }
       game = await api('/api/games/province', { method:'POST', body:{ province: p.value } });
+    }else if(lastMode === 'difficulty'){
+      const d = JSON.parse(localStorage.getItem('lastDifficulty'));
+      if(!d || !d.value){ window.location.href = 'mode.html'; return; }
+      game = await api('/api/games/difficulty', { method:'POST', body:{ difficulty: d.value } });
     }else{
       game = await api('/api/games', { method:'POST' });
     }

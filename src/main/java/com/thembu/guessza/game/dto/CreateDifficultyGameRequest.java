@@ -1,15 +1,17 @@
 package com.thembu.guessza.game.dto;
 
 
-import com.thembu.guessza.location.Province;
+import com.thembu.guessza.location.Difficulty;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record CreateGameRequest(
+public record CreateDifficultyGameRequest(
 
         @NotNull
-        UUID userId
+        Difficulty difficulty
+
+
 ) {
 
 }

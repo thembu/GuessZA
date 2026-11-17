@@ -22,7 +22,7 @@
   .container{max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
   h1{font-size:40px;font-weight:700;letter-spacing:-1.2px;margin-bottom:8px;}
   .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:40px;}
-  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
   .mode-card{
     position:relative;
     border-radius:16px;overflow:hidden;
@@ -46,6 +46,9 @@
      ============================================================ */
   .mode-standard{background-image:url('images/mode-standard.jpg');} /* IMAGE HERE */
   .mode-province{background-image:url('images/mode-province.jpg');} /* IMAGE HERE */
+  /* Difficulty: "Amphitheatre Drakensberg View" by PhilippN, CC BY-SA 3.0,
+     https://commons.wikimedia.org/wiki/File:Amphitheatre_Drakensberg_View.jpg */
+  .mode-difficulty{background-image:url('images/mode-difficulty.jpg');}
 
   .mode-overlay{
     position:absolute;inset:0;
@@ -58,7 +61,7 @@
   .mode-name{font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px;}
   .mode-desc{color:rgba(255,255,255,0.75);font-size:14px;line-height:1.5;margin-bottom:18px;max-width:320px;}
   .mode-cta{color:#4ade80;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
-  @media (max-width: 700px){
+  @media (max-width: 900px){
     .grid{grid-template-columns:1fr;}
     .mode-card{height:280px;}
   }
@@ -74,7 +77,7 @@
 </div>
 <div class="container">
   <h1>Choose your mode</h1>
-  <p class="sub">Play across all of South Africa, or narrow it down to one province.</p>
+  <p class="sub">Play across all of South Africa, narrow it down to one province, or pick how hard it gets.</p>
   <div class="grid">
     <button class="mode-card" onclick="startStandard()">
       <div class="mode-img mode-standard"></div>
@@ -92,6 +95,15 @@
         <div class="mode-name">Province</div>
         <p class="mode-desc">Pick one of nine provinces. All five rounds stay within its borders.</p>
         <div class="mode-cta">Choose province <span>→</span></div>
+      </div>
+    </a>
+    <a class="mode-card" href="difficulty.html">
+      <div class="mode-img mode-difficulty"></div>
+      <div class="mode-overlay"></div>
+      <div class="mode-content">
+        <div class="mode-name">Difficulty</div>
+        <p class="mode-desc">All of South Africa, but every round is Easy, Medium or Hard. You choose.</p>
+        <div class="mode-cta">Choose difficulty <span>→</span></div>
       </div>
     </a>
   </div>
@@ -125,6 +137,7 @@
       localStorage.setItem('gameId', game.id);
       localStorage.setItem('lastMode', 'standard');
       localStorage.removeItem('lastProvince');
+      localStorage.removeItem('lastDifficulty');
       window.location.href = 'game.html';
     }catch(e){ alert('Could not start game. Is the server running?'); }
   }

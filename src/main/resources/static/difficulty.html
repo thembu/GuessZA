@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Pick a difficulty</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;min-height:100vh;}
+  .topnav{display:flex;justify-content:space-between;align-items:center;padding:24px 40px;}
+  .brand{font-weight:700;font-size:18px;letter-spacing:-0.3px;}
+  .brand span{color:#4ade80;}
+  .back{color:rgba(255,255,255,0.5);font-size:13px;text-decoration:none;}
+  .back:hover{color:#fff;}
+  .container{max-width:1100px;margin:0 auto;padding:40px 24px 80px;}
+  h1{font-size:40px;font-weight:700;letter-spacing:-1.2px;margin-bottom:8px;}
+  .sub{color:rgba(255,255,255,0.55);font-size:15px;margin-bottom:40px;}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .difficulty-card{
+    position:relative;
+    border-radius:16px;overflow:hidden;
+    cursor:pointer;color:inherit;font-family:inherit;
+    padding:32px;text-align:left;
+    border:1px solid rgba(255,255,255,0.08);
+    background:#1a2420;
+    height:260px;display:flex;flex-direction:column;justify-content:flex-end;
+    transition:transform 0.2s,border-color 0.2s;
+  }
+  .difficulty-card::before{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(circle at 85% 15%, var(--accent-glow) 0%, transparent 60%);
+  }
+  .difficulty-card:hover{transform:translateY(-4px);border-color:var(--accent);}
+  .difficulty-card > *{position:relative;}
+  .difficulty-pips{display:flex;gap:6px;margin-bottom:auto;}
+  .pip{width:28px;height:6px;border-radius:3px;background:rgba(255,255,255,0.12);}
+  .pip.on{background:var(--accent);}
+  .difficulty-name{font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px;}
+  .difficulty-desc{color:rgba(255,255,255,0.7);font-size:14px;line-height:1.5;margin-bottom:18px;}
+  .difficulty-cta{color:var(--accent);font-size:13px;font-weight:600;}
+  .easy{--accent:#4ade80;--accent-glow:rgba(74,222,128,0.18);}
+  .medium{--accent:#fbbf24;--accent-glow:rgba(251,191,36,0.18);}
+  .hard{--accent:#f87171;--accent-glow:rgba(248,113,113,0.18);}
+  .loading-overlay{
+    position:fixed;inset:0;background:rgba(15,22,19,0.85);
+    display:none;align-items:center;justify-content:center;
+    z-index:100;font-size:14px;color:rgba(255,255,255,0.7);
+  }
+  .loading-overlay.show{display:flex;}
+  @media (max-width: 800px){ .grid{grid-template-columns:1fr;} .difficulty-card{height:200px;} }
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="brand">Guess<span>ZA</span></div>
+  <a href="mode.html" class="back">← Back</a>
+</div>
+<div class="container">
+  <h1>Pick a difficulty</h1>
+  <p class="sub">Five rounds from anywhere in South Africa, all at the level you choose.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<div class="loading-overlay" id="loading">Starting game…</div>
+
+<script src="/js/api.js"></script>
+<script>
+  requireLogin();
+
+  // value must match the backend Difficulty enum (EASY / MEDIUM / HARD)
+  const DIFFICULTIES = [
+    { value: 'EASY',   display: 'Easy',   level: 1, css: 'easy',   desc: 'Famous landmarks and big cities. A good place to start.' },
+    { value: 'MEDIUM', display: 'Medium', level: 2, css: 'medium', desc: 'Well-known spots, but you will need to know your provinces.' },
+    { value: 'HARD',   display: 'Hard',   level: 3, css: 'hard',   desc: 'Small towns and hidden corners. Only for locals.' },
+  ];
+
+  const grid = document.getElementById('grid');
+  DIFFICULTIES.forEach(d => {
+    const card = document.createElement('button');
+    card.className = `difficulty-card ${d.css}`;
+    const pips = [1, 2, 3].map(i => `<div class="pip${i <= d.level ? ' on' : ''}"></div>`).join('');
+    card.innerHTML = `
+      <div class="difficulty-pips">${pips}</div>
+      <div class="difficulty-name">${d.display}</div>
+      <p class="difficulty-desc">${d.desc}</p>
+      <div class="difficulty-cta">Start game →</div>
+    `;
+    card.addEventListener('click', () => startDifficultyGame(d));
+    grid.appendChild(card);
+  });
+
+  async function startDifficultyGame(difficulty){
+    document.getElementById('loading').classList.add('show');
+    try{
+      // the server takes the player from the token (#19), so only the difficulty is sent
+      const game = await api('/api/games/difficulty', { method:'POST', body:{ difficulty: difficulty.value } });
+      if(game.locationsExhausted){
+        document.getElementById('loading').classList.remove('show');
+        alert("You've explored every location in this mode! we need to reload them now click again");
+        return;
+      }
+
+      localStorage.setItem('gameId', game.id);
+      localStorage.setItem('lastMode', 'difficulty');
+      localStorage.setItem('lastDifficulty', JSON.stringify({ value: difficulty.value, display: difficulty.display }));
+      localStorage.removeItem('lastProvince');
+      window.location.href = 'game.html';
+    }catch(e){
+      document.getElementById('loading').classList.remove('show');
+      alert(`Could not start ${difficulty.display} game. Try another difficulty or Standard mode.`);
+    }
+  }
+</script>
+</body>
+</html>
