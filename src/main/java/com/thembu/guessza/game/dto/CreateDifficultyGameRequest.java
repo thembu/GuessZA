@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public record CreateDifficultyGameRequest(
 
-
+        @NotNull
         Difficulty difficulty
 
 

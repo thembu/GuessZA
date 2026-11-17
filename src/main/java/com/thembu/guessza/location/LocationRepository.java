@@ -27,7 +27,18 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE FROM visited_locations WHERE user_id = :user_id", nativeQuery = true)
+    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id", nativeQuery = true)
     void deleteVisited(@Param("user_id") UUID user_id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id AND location_id IN (SELECT id FROM locations WHERE province ILIKE :province )", nativeQuery = true)
+    void deleteVisitedProvince(@Param("user_id") UUID user_id , @Param("province") String province);
+
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id AND location_id IN (SELECT id FROM locations WHERE difficulty ILIKE :difficulty )", nativeQuery = true)
+    void deleteVisitedDifficulty(@Param("user_id") UUID user_id , @Param("difficulty") String difficulty);
 
 }

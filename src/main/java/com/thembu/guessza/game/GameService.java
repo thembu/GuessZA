@@ -37,11 +37,11 @@ public class GameService {
     }
 
 
-    private GameResponse startGame(UUID userId, Game game, List<Location> locations ) {
+    private GameResponse startGame(UUID userId, Game game, List<Location> locations  , Runnable resetVisited) {
 
 
         if(locations.size() < ROUNDS_PER_GAME){
-            locationRepository.deleteVisited(userId);
+            resetVisited.run();
             return GameResponse.locationsExhausted(userId , true);
         }
 
@@ -81,7 +81,7 @@ public class GameService {
 
         UUID userId = user.getId();
 
-        return startGame( userId, game , locationService.getRandomLocations(ROUNDS_PER_GAME, userId));
+        return startGame( userId, game , locationService.getRandomLocations(ROUNDS_PER_GAME, userId) , () -> locationRepository.deleteVisited(userId));
 
     }
 
@@ -96,7 +96,7 @@ public class GameService {
 
         UUID userId = user.getId();
 
-        return startGame( userId, game , locationService.getLocationByProvince(request.province(),ROUNDS_PER_GAME, userId));
+        return startGame( userId, game , locationService.getLocationByProvince(request.province(),ROUNDS_PER_GAME, userId), () -> locationRepository.deleteVisitedProvince(userId , request.province().name()));
 
     }
 
@@ -111,7 +111,7 @@ public class GameService {
 
         UUID userId = user.getId();
 
-        return startGame( userId, game , locationService.getLocationByDifficulty(request.difficulty(),ROUNDS_PER_GAME, userId));
+        return startGame( userId, game , locationService.getLocationByDifficulty(request.difficulty(),ROUNDS_PER_GAME, userId), () -> locationRepository.deleteVisitedDifficulty(userId , request.difficulty().name()));
 
 
     }
