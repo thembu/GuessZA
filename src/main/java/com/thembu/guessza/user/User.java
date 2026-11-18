@@ -1,9 +1,6 @@
 package com.thembu.guessza.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -23,8 +20,6 @@ public class User {
 
     private String password_hash;
 
-    @NotBlank(message = "nickname cannot be blank")
-    @Size(max = 20)
     private String nickname;
 
     private Integer gamesPlayed = 0;

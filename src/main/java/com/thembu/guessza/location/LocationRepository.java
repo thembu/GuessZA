@@ -13,10 +13,10 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
     @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true   ORDER BY random() LIMIT :count", nativeQuery = true)
     List<Location> findRandomActiveLocations(@Param("count") int count , @Param("user_id") UUID user_id);
 
-    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true AND province ILIKE :province ORDER BY random() LIMIT :count", nativeQuery = true)
+    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true AND province = :province ORDER BY random() LIMIT :count", nativeQuery = true)
     List<Location> findRandomLocationsByProvince(@Param("province") String province,@Param("count") int count , @Param("user_id") UUID user_id);
 
-    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true AND difficulty ILIKE :difficulty ORDER BY random() LIMIT :count" , nativeQuery = true)
+    @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true AND difficulty = :difficulty ORDER BY random() LIMIT :count" , nativeQuery = true)
     List<Location> findRandomLocationsByDifficulty(@Param("difficulty") String difficulty , @Param("count") int count , @Param("user_id") UUID user_id);
 
     @Transactional
@@ -32,13 +32,13 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id AND location_id IN (SELECT id FROM locations WHERE province ILIKE :province )", nativeQuery = true)
+    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id AND location_id IN (SELECT id FROM locations WHERE province = :province )", nativeQuery = true)
     void deleteVisitedProvince(@Param("user_id") UUID user_id , @Param("province") String province);
 
 
     @Transactional
     @Modifying
-    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id AND location_id IN (SELECT id FROM locations WHERE difficulty ILIKE :difficulty )", nativeQuery = true)
+    @Query(value = "DELETE  FROM visited_locations WHERE user_id = :user_id AND location_id IN (SELECT id FROM locations WHERE difficulty = :difficulty )", nativeQuery = true)
     void deleteVisitedDifficulty(@Param("user_id") UUID user_id , @Param("difficulty") String difficulty);
 
 }
