@@ -1,6 +1,7 @@
 package com.thembu.guessza.common;
 
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.thembu.guessza.challenge.ChallengeAlreadyPlayedException;
 import com.thembu.guessza.challenge.ChallengeExpiredException;
 import com.thembu.guessza.challenge.ChallengeNotFoundException;
 import com.thembu.guessza.game.GameNotFoundException;
@@ -42,8 +43,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ChallengeExpiredException.class)
-    public  ProblemDetail handleChallengeNotFound(ChallengeExpiredException ex) {
+    public  ProblemDetail handleChallengeExpired(ChallengeExpiredException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.GONE , ex.getMessage());
+    }
+
+
+    @ExceptionHandler(ChallengeAlreadyPlayedException.class)
+    public  ProblemDetail handleChallengeAlreadyPlayed(ChallengeAlreadyPlayedException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , ex.getMessage());
     }
 
     @ExceptionHandler(BadCredentialsException.class)

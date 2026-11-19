@@ -49,7 +49,7 @@ public class GameService {
 
         game.setTotalRounds(ROUNDS_PER_GAME);
         //after check for locations save game
-         gameRepository.save(game);
+         gameRepository.saveAndFlush(game);
 
 
         int  count = 1;

@@ -1,6 +1,7 @@
 package com.thembu.guessza.challenge;
 
 
+import com.thembu.guessza.challenge.dto.ChallengeInfoResponse;
 import com.thembu.guessza.challenge.dto.ChallengeResponse;
 import com.thembu.guessza.game.dto.GameResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -45,6 +46,18 @@ public class ChallengeController {
 
     public  GameResponse startChallenge(@PathVariable String code , @AuthenticationPrincipal UserDetails principal) {
         return  challengeService.StartChallengeGame(code , principal.getUsername());
+    }
+
+
+
+    @GetMapping("/{code}")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Challenge info and results (results only after you've finished)")
+    @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = ChallengeInfoResponse.class)))
+    @ApiResponse(responseCode = "404", description = "challenge not found", content = @Content(mediaType = "application/problem+json", schema =
+    @Schema(implementation = ProblemDetail.class)))
+    public ChallengeInfoResponse getChallenge(@PathVariable String code, @AuthenticationPrincipal UserDetails principal) {
+        return challengeService.getChallengeInfo(code, principal.getUsername());
     }
 
 }

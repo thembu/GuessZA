@@ -1,8 +1,13 @@
 package com.thembu.guessza.challenge;
 
+import com.thembu.guessza.challenge.dto.ChallengeInfoResponse;
 import com.thembu.guessza.challenge.dto.ChallengeResponse;
+import com.thembu.guessza.challenge.dto.PlayerResult;
+import com.thembu.guessza.challenge.dto.RoundResult;
 import com.thembu.guessza.game.Game;
+import com.thembu.guessza.game.GameRepository;
 import com.thembu.guessza.game.GameService;
+import com.thembu.guessza.game.GameStatus;
 import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.location.Location;
 import com.thembu.guessza.location.LocationRepository;
@@ -11,12 +16,16 @@ import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
 import com.thembu.guessza.user.UserService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ChallengeService {
@@ -24,14 +33,16 @@ public class ChallengeService {
     private final ChallengeRepository challengeRepository;
     private final LocationService locationService;
     private final GameService gameService;
+    private final GameRepository gameRepository;
     private  final UserRepository userRepository;
     private final LocationRepository locationRepository;
     private static final int ROUNDS_PER_GAME = 5;
 
-    public ChallengeService(ChallengeRepository challengeRepository, LocationService locationService, GameService gameService, UserRepository userRepository, LocationRepository locationRepository) {
+    public ChallengeService(ChallengeRepository challengeRepository, LocationService locationService, GameService gameService, GameRepository gameRepository, UserRepository userRepository, LocationRepository locationRepository) {
         this.challengeRepository = challengeRepository;
         this.locationService = locationService;
         this.gameService = gameService;
+        this.gameRepository = gameRepository;
         this.userRepository = userRepository;
         this.locationRepository = locationRepository;
     }
@@ -93,10 +104,62 @@ public class ChallengeService {
         UUID userId = user.getId();
 
 
-        return gameService.startGame(userId , game , locationRepository.findChallengeLocations(challenge.getId() , ROUNDS_PER_GAME), () -> {} );
-
+        try {
+            return gameService.startGame(userId, game, locationRepository.findChallengeLocations(challenge.getId(), ROUNDS_PER_GAME), () -> {
+            });
+        } catch (DataIntegrityViolationException e) {
+            throw new ChallengeAlreadyPlayedException(code);
+        }
 
     }
+
+
+    @Transactional(readOnly = true)
+    public ChallengeInfoResponse getChallengeInfo(String code, String username) {
+
+        // 1. the challenge → 404 if unknown. Expiry is NOT checked: results stay visible after expiry
+        Challenges challenge = challengeRepository.findChallengesByCode(code)
+                .orElseThrow(() -> new ChallengeNotFoundException(code));
+
+        // 2. who's asking
+        User user = userRepository.findUserByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+
+        // 3. their status on this challenge (null = never started)
+        GameStatus myStatus = gameRepository.findByChallengeAndUser(challenge, user)
+                .map(Game::getStatus)
+                .orElse(null);
+
+        // 4. results only if they've finished. This is the "don't reveal" rule
+        List<PlayerResult> results = myStatus == GameStatus.COMPLETED
+                ? buildResults(challenge.getId())
+                : List.of();
+
+        return new ChallengeInfoResponse(
+                challenge.getCode(),
+                challenge.getCreator().getNickname(),
+                challenge.getExpires_at(),
+                LocalDateTime.now().isAfter(challenge.getExpires_at()),
+                myStatus,
+                results);
+    }
+
+    private List<PlayerResult> buildResults(UUID challengeId) {
+        // 10 flat rows for 2 players → grouped per game, keeping the score order from SQL
+        Map<UUID, List<ChallengeResultRow>> byGame = gameRepository.findChallengeResults(challengeId).stream()
+                .collect(Collectors.groupingBy(ChallengeResultRow::getGameId, LinkedHashMap::new, Collectors.toList()));
+
+        return byGame.values().stream()
+                .map(rows -> new PlayerResult(
+                        rows.get(0).getNickname(),       // the same on every row of one game
+                        rows.get(0).getTotalScore(),
+                        rows.stream()
+                                .map(r -> new RoundResult(r.getRoundNumber(), r.getScore(), r.getDistanceMeters()))
+                                .toList()))
+                .toList();
+    }
+
+
 
 
 }
