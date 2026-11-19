@@ -15,6 +15,7 @@ public class Challenges {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+
     private String code;
 
     @ManyToOne

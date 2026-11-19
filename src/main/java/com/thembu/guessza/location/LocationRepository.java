@@ -24,6 +24,11 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
     @Query(value = "INSERT INTO visited_locations (location_id , user_id) VALUES (:location_id, :user_id ) ON CONFLICT (location_id, user_id) DO NOTHING" , nativeQuery = true)
     void saveVisited(@Param("location_id") UUID location_id , @Param("user_id") UUID user_id);
 
+    @Transactional
+    @Modifying
+    @Query(value = "INSERT INTO challenge_locations (challenge_id , round_number ,  location_id) VALUES (:challenge_id, :round_number , :location_id)" , nativeQuery = true)
+    void saveChallenge(@Param("challenge_id") UUID challenge_id , @Param("round_number") int round_number , @Param("location_id") UUID location_id);
+
 
     @Transactional
     @Modifying
