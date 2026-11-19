@@ -21,7 +21,9 @@ public interface GameRepository extends JpaRepository<Game , UUID> {
                  g.total_score     AS "totalScore",
                  r.round_number    AS "roundNumber",
                  r.score           AS "score",
-                 r.distance_meters AS "distanceMeters"
+                 r.distance_meters AS "distanceMeters",
+                 r.guess_lat       AS "guessLat",
+                 r.guess_lng       AS "guessLng"
           FROM games g
           JOIN users  u ON u.id = g.user_id
           JOIN rounds r ON r.game_id = g.id

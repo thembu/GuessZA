@@ -3,6 +3,7 @@ package com.thembu.guessza.challenge;
 import com.thembu.guessza.challenge.dto.ChallengeInfoResponse;
 import com.thembu.guessza.challenge.dto.ChallengeResponse;
 import com.thembu.guessza.challenge.dto.PlayerResult;
+import com.thembu.guessza.challenge.dto.RoundLocation;
 import com.thembu.guessza.challenge.dto.RoundResult;
 import com.thembu.guessza.game.Game;
 import com.thembu.guessza.game.GameRepository;
@@ -24,8 +25,10 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class ChallengeService {
@@ -125,15 +128,16 @@ public class ChallengeService {
         User user = userRepository.findUserByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException(username));
 
-        // 3. their status on this challenge (null = never started)
-        GameStatus myStatus = gameRepository.findByChallengeAndUser(challenge, user)
-                .map(Game::getStatus)
-                .orElse(null);
+        // 3. their game on this challenge, if any (null status = never started).
+        //    The id lets the page resume an IN_PROGRESS game from any device.
+        Optional<Game> myGame = gameRepository.findByChallengeAndUser(challenge, user);
+        GameStatus myStatus = myGame.map(Game::getStatus).orElse(null);
+        UUID myGameId = myGame.map(Game::getId).orElse(null);
 
-        // 4. results only if they've finished. This is the "don't reveal" rule
-        List<PlayerResult> results = myStatus == GameStatus.COMPLETED
-                ? buildResults(challenge.getId())
-                : List.of();
+        // 4. results and actual locations only if they've finished. This is the "don't reveal" rule
+        boolean finished = myStatus == GameStatus.COMPLETED;
+        List<PlayerResult> results = finished ? buildResults(challenge.getId()) : List.of();
+        List<RoundLocation> locations = finished ? buildLocations(challenge.getId()) : List.of();
 
         return new ChallengeInfoResponse(
                 challenge.getCode(),
@@ -141,7 +145,22 @@ public class ChallengeService {
                 challenge.getExpires_at(),
                 LocalDateTime.now().isAfter(challenge.getExpires_at()),
                 myStatus,
-                results);
+                myGameId,
+                results,
+                locations);
+    }
+
+    private List<RoundLocation> buildLocations(UUID challengeId) {
+        // findChallengeLocations returns them ORDER BY round_number, and createChallenge numbers
+        // rounds 1..n with no gaps, so list position + 1 is the round number
+        List<Location> locations = locationRepository.findChallengeLocations(challengeId, ROUNDS_PER_GAME);
+        return IntStream.range(0, locations.size())
+                .mapToObj(i -> {
+                    Location l = locations.get(i);
+                    return new RoundLocation(i + 1, l.getName(), l.getCity(), l.getProvince(),
+                            l.getLatitude(), l.getLongitude());
+                })
+                .toList();
     }
 
     private List<PlayerResult> buildResults(UUID challengeId) {
@@ -154,7 +173,8 @@ public class ChallengeService {
                         rows.get(0).getNickname(),       // the same on every row of one game
                         rows.get(0).getTotalScore(),
                         rows.stream()
-                                .map(r -> new RoundResult(r.getRoundNumber(), r.getScore(), r.getDistanceMeters()))
+                                .map(r -> new RoundResult(r.getRoundNumber(), r.getScore(), r.getDistanceMeters(),
+                                        r.getGuessLat(), r.getGuessLng()))
                                 .toList()))
                 .toList();
     }

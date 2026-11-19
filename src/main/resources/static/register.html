@@ -97,12 +97,14 @@
 
     <button id="submitBtn" type="submit">Create account</button>
     <p class="error" id="errorMsg" role="alert"></p>
-    <p class="switch">Already have an account? <a href="login.html">Log in</a></p>
+    <p class="switch">Already have an account? <a href="login.html" id="switchLink">Log in</a></p>
   </form>
 </div>
 <script src="/js/api.js"></script>
 <script>
-  if (isLoggedIn()) window.location.href = 'mode.html';
+  if (isLoggedIn()) window.location.href = safeNext();
+  // keep ?next= when switching between login and register, so a new player still lands on the challenge
+  document.getElementById('switchLink').search = window.location.search;
 
   const FIELDS = ['username', 'nickname', 'password'];
   // The same rules as CreateUserRequest on the server, so most mistakes never leave the page.
@@ -166,7 +168,7 @@
         body: { username: values.username, password: values.password },
       });
       setToken(token);
-      window.location.href = 'mode.html';
+      window.location.href = safeNext();
     } catch (e) {
       if (e instanceof ApiError && e.status === 409) {
         setFieldError('username', 'That username is taken.');

@@ -1,3 +1,5 @@
 package com.thembu.guessza.challenge.dto;
 
-public record RoundResult(Integer roundNumber, Integer score, Integer distanceMeters) {}
+// guessLat/guessLng let the results map pin each player's guess
+public record RoundResult(Integer roundNumber, Integer score, Integer distanceMeters,
+                          Double guessLat, Double guessLng) {}

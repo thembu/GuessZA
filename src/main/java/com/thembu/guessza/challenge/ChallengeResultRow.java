@@ -9,4 +9,6 @@ public interface ChallengeResultRow {
     Integer getRoundNumber();
     Integer getScore();
     Integer getDistanceMeters();
+    Double getGuessLat();
+    Double getGuessLng();
 }
