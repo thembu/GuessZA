@@ -3,6 +3,7 @@ package com.thembu.guessza.challenge;
 import com.thembu.guessza.challenge.dto.ChallengeResponse;
 import com.thembu.guessza.game.Game;
 import com.thembu.guessza.game.GameService;
+import com.thembu.guessza.game.dto.GameResponse;
 import com.thembu.guessza.location.Location;
 import com.thembu.guessza.location.LocationRepository;
 import com.thembu.guessza.location.LocationService;
@@ -25,6 +26,7 @@ public class ChallengeService {
     private final GameService gameService;
     private  final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private static final int ROUNDS_PER_GAME = 5;
 
     public ChallengeService(ChallengeRepository challengeRepository, LocationService locationService, GameService gameService, UserRepository userRepository, LocationRepository locationRepository) {
         this.challengeRepository = challengeRepository;
@@ -69,5 +71,32 @@ public class ChallengeService {
         return new ChallengeResponse(challenge.getCode() , "/challenge.html?code=".concat(challenge.getCode()));
 
     }
+
+
+    @Transactional
+    public GameResponse StartChallengeGame(String code ,  String username) {
+        //create new instance of game entity, add user/player for that game and the challenge they are playing save it
+        Game game = new Game();
+
+        //get challenge using the code
+        Challenges challenge = challengeRepository.findChallengesByCode(code).orElseThrow(() -> new ChallengeNotFoundException(code));
+
+        //check if challenge has expired yet
+        if(LocalDateTime.now().isAfter(challenge.getExpires_at())) throw new ChallengeExpiredException(code);
+
+        game.setChallenge(challenge);
+
+        User user = userRepository.findUserByUsername(username).orElseThrow(()-> new UserNotFoundException(username));
+
+        game.setUser(user);
+
+        UUID userId = user.getId();
+
+
+        return gameService.startGame(userId , game , locationRepository.findChallengeLocations(challenge.getId() , ROUNDS_PER_GAME), () -> {} );
+
+
+    }
+
 
 }

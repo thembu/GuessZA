@@ -36,4 +36,15 @@ public class ChallengeController {
         return challengeService.createChallenge(principal.getUsername());
     }
 
+    @PostMapping("/{code}/play")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "start challenge multiplayer game")
+    @ApiResponse(responseCode = "201" , description = "challenge  game started" , content = @Content(schema = @Schema(implementation = GameResponse.class)))
+    @ApiResponse(responseCode = "404", description = "challenge not found", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+    @ApiResponse(responseCode = "410", description = "challenge has expired", content = @Content(mediaType = "application/problem+json", schema = @Schema(implementation = ProblemDetail.class)))
+
+    public  GameResponse startChallenge(@PathVariable String code , @AuthenticationPrincipal UserDetails principal) {
+        return  challengeService.StartChallengeGame(code , principal.getUsername());
+    }
+
 }

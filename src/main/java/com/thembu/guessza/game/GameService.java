@@ -1,5 +1,6 @@
 package com.thembu.guessza.game;
 
+import com.thembu.guessza.challenge.ChallengeService;
 import com.thembu.guessza.game.dto.CreateDifficultyGameRequest;
 import com.thembu.guessza.game.dto.CreateProvinceGameRequest;
 import com.thembu.guessza.game.dto.GameResponse;
@@ -37,7 +38,7 @@ public class GameService {
     }
 
 
-    private GameResponse startGame(UUID userId, Game game, List<Location> locations  , Runnable resetVisited) {
+    public GameResponse startGame(UUID userId, Game game, List<Location> locations  , Runnable resetVisited) {
 
 
         if(locations.size() < ROUNDS_PER_GAME){
@@ -115,5 +116,8 @@ public class GameService {
 
 
     }
+
+
+
 
 }
