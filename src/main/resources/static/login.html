@@ -75,12 +75,14 @@
     <input id="password" type="password" autocomplete="current-password"/>
     <button id="submitBtn" type="submit">Log in</button>
     <p class="error" id="errorMsg" role="alert"></p>
-    <p class="switch">No account yet? <a href="register.html">Create one</a></p>
+    <p class="switch">No account yet? <a href="register.html" id="switchLink">Create one</a></p>
   </form>
 </div>
 <script src="/js/api.js"></script>
 <script>
-  if (isLoggedIn()) window.location.href = 'mode.html';
+  if (isLoggedIn()) window.location.href = safeNext();
+  // keep ?next= when switching between login and register, so a new player still lands on the challenge
+  document.getElementById('switchLink').search = window.location.search;
 
   const form = document.getElementById('loginForm');
   const btn = document.getElementById('submitBtn');
@@ -101,7 +103,7 @@
     try {
       const { token } = await api('/api/auth/login', { method: 'POST', body: { username, password }, auth: false });
       setToken(token);
-      window.location.href = 'mode.html';
+      window.location.href = safeNext();
     } catch (e) {
       // 401 = wrong credentials. 400 = input the server could never accept (e.g. a 2-letter
       // username), so it can't be a real account either: same message, nothing to enumerate.

@@ -19,10 +19,19 @@ public interface LocationRepository extends JpaRepository<Location, UUID> {
     @Query(value = "SELECT * FROM locations WHERE id NOT IN ( SELECT location_id FROM visited_locations WHERE user_id = :user_id) AND  active = true AND difficulty = :difficulty ORDER BY random() LIMIT :count" , nativeQuery = true)
     List<Location> findRandomLocationsByDifficulty(@Param("difficulty") String difficulty , @Param("count") int count , @Param("user_id") UUID user_id);
 
+    @Query(value = " SELECT l.* FROM locations l JOIN challenge_locations cl ON cl.location_id = l.id WHERE cl.challenge_id = :challenge_id ORDER BY cl.round_number LIMIT :count", nativeQuery = true)
+    List<Location> findChallengeLocations(@Param("challenge_id") UUID challengeId , @Param("count") int count);
+
+
     @Transactional
     @Modifying
     @Query(value = "INSERT INTO visited_locations (location_id , user_id) VALUES (:location_id, :user_id ) ON CONFLICT (location_id, user_id) DO NOTHING" , nativeQuery = true)
     void saveVisited(@Param("location_id") UUID location_id , @Param("user_id") UUID user_id);
+
+    @Transactional
+    @Modifying
+    @Query(value = "INSERT INTO challenge_locations (challenge_id , round_number ,  location_id) VALUES (:challenge_id, :round_number , :location_id)" , nativeQuery = true)
+    void saveChallenge(@Param("challenge_id") UUID challenge_id , @Param("round_number") int round_number , @Param("location_id") UUID location_id);
 
 
     @Transactional

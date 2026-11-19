@@ -61,9 +61,25 @@
   .mode-name{font-size:28px;font-weight:700;letter-spacing:-0.8px;margin-bottom:8px;}
   .mode-desc{color:rgba(255,255,255,0.75);font-size:14px;line-height:1.5;margin-bottom:18px;max-width:320px;}
   .mode-cta{color:#4ade80;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  /* Challenge a friend (#25): full-width card under the three solo modes */
+  .challenge-card{
+    margin-top:20px;width:100%;
+    display:flex;align-items:center;justify-content:space-between;gap:24px;
+    padding:28px 32px;border-radius:16px;
+    border:1px solid rgba(74,222,128,0.25);
+    background:linear-gradient(120deg, rgba(74,222,128,0.14), rgba(74,222,128,0.03));
+    color:inherit;font-family:inherit;text-align:left;cursor:pointer;
+    transition:transform 0.2s, border-color 0.2s;
+  }
+  .challenge-card:hover{transform:translateY(-2px);border-color:rgba(74,222,128,0.55);}
+  .challenge-card:disabled{opacity:0.6;cursor:wait;transform:none;}
+  .challenge-card .mode-name{font-size:24px;}
+  .challenge-card .mode-desc{margin-bottom:0;max-width:560px;}
+  .challenge-card .mode-cta{white-space:nowrap;}
   @media (max-width: 900px){
     .grid{grid-template-columns:1fr;}
     .mode-card{height:280px;}
+    .challenge-card{flex-direction:column;align-items:flex-start;}
   }
 </style>
 </head>
@@ -107,6 +123,13 @@
       </div>
     </a>
   </div>
+  <button class="challenge-card" onclick="createChallenge(this)">
+    <div>
+      <div class="mode-name">Challenge a friend</div>
+      <p class="mode-desc">Five random locations behind one link. Everyone who opens it plays the same rounds in the same order, then you compare scores round by round.</p>
+    </div>
+    <div class="mode-cta">Create challenge <span>→</span></div>
+  </button>
 </div>
 <script src="/js/api.js"></script>
 <script>
@@ -123,6 +146,18 @@
     const stored = JSON.parse(localStorage.getItem('visitedLocations'));
     if(Array.isArray(stored)) visited_locations = stored;
   }catch(e){}
+
+  // Creates the challenge only. The creator plays it from the challenge page like everyone else.
+  async function createChallenge(btn){
+    btn.disabled = true;
+    try{
+      const challenge = await api('/api/challenges', { method:'POST' });
+      window.location.href = 'challenge.html?code=' + encodeURIComponent(challenge.code);
+    }catch(e){
+      btn.disabled = false;
+      alert('Could not create a challenge. Is the server running?');
+    }
+  }
 
   async function startStandard(){
     try{

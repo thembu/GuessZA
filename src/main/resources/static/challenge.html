@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GuessZA — Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  body{font-family:'Inter',sans-serif;background:#0f1613;color:#fff;min-height:100vh;}
+  .topnav{display:flex;justify-content:space-between;align-items:center;padding:24px 40px;}
+  .brand{font-weight:700;font-size:18px;letter-spacing:-0.3px;color:#fff;text-decoration:none;}
+  .brand span{color:#4ade80;}
+  .nav-right{display:flex;align-items:center;gap:20px;font-size:13px;}
+  .who{color:#fff;font-weight:600;}
+  .logout{background:none;border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.75);font-family:inherit;font-size:13px;padding:6px 12px;border-radius:6px;cursor:pointer;}
+  .logout:hover{color:#fff;border-color:#fff;}
+
+  .container{max-width:960px;margin:0 auto;padding:24px 24px 80px;}
+  .muted{color:rgba(255,255,255,0.55);}
+  .eyebrow{display:flex;align-items:center;gap:10px;font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+  .badge{font-size:11px;font-weight:600;letter-spacing:1px;padding:4px 10px;border-radius:100px;}
+  .badge-open{background:rgba(74,222,128,0.12);color:#4ade80;}
+  .badge-expired{background:rgba(248,113,113,0.12);color:#f87171;}
+  h1{font-size:40px;font-weight:700;letter-spacing:-1.2px;line-height:1.1;margin-bottom:8px;overflow-wrap:anywhere;}
+  .sub{font-size:15px;margin-bottom:32px;}
+
+  .panel{background:#141a17;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:24px;margin-bottom:16px;}
+  .panel-label{font-size:11px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;}
+
+  .share-row{display:flex;gap:10px;}
+  .share-row input{
+    flex:1;min-width:0;
+    background:#0f1613;border:1px solid rgba(255,255,255,0.12);border-radius:8px;
+    color:#fff;font-family:inherit;font-size:14px;padding:12px 14px;
+  }
+  .btn{
+    font-family:inherit;font-size:14px;font-weight:600;
+    padding:12px 22px;border-radius:8px;cursor:pointer;border:none;
+    transition:background 0.15s,opacity 0.15s;white-space:nowrap;text-decoration:none;display:inline-block;
+  }
+  .btn-primary{background:#4ade80;color:#0a2818;}
+  .btn-primary:hover{background:#3ec972;}
+  .btn-primary:disabled{opacity:0.5;cursor:wait;}
+  .btn-secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.15);}
+  .btn-secondary:hover{border-color:rgba(255,255,255,0.35);}
+
+  .action{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .action p{font-size:15px;line-height:1.5;color:rgba(255,255,255,0.8);}
+
+  .avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:block;}
+  .avatar-sm{width:22px;height:22px;}
+
+  /* Podium / standings */
+  .headline{font-size:26px;font-weight:800;letter-spacing:-0.6px;margin-bottom:18px;overflow-wrap:anywhere;}
+  .headline.win{color:#fbbf24;}
+  .standings{list-style:none;}
+  .standing{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+  .standing:last-child{border-bottom:none;}
+  .rank{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;}
+  .standing.first .rank{background:rgba(251,191,36,0.15);color:#fbbf24;}
+  .standing.first .avatar{box-shadow:0 0 0 2px #fbbf24;}
+  .standing .name{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .standing .total{font-weight:700;font-variant-numeric:tabular-nums;color:#4ade80;}
+
+  /* Results map */
+  .round-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .tab{
+    background:transparent;border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.7);
+    font-family:inherit;font-size:13px;font-weight:600;padding:7px 14px;border-radius:100px;cursor:pointer;
+    transition:background 0.15s,color 0.15s,border-color 0.15s;
+  }
+  .tab:hover{border-color:rgba(255,255,255,0.35);color:#fff;}
+  .tab.active{background:#4ade80;border-color:#4ade80;color:#0a2818;}
+  #resultsMap{height:460px;border-radius:10px;overflow:hidden;background:#17201c;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:14px;font-size:13px;}
+  .legend-item{display:flex;align-items:center;gap:8px;min-width:0;}
+  .legend-item .swatch{width:18px;height:0;border-top:3px dashed;flex-shrink:0;}
+  .legend-item .name{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .round-detail{margin-top:18px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.06);}
+  .loc-name{font-size:20px;font-weight:700;letter-spacing:-0.4px;}
+  .loc-sub{font-size:13px;margin-top:4px;margin-bottom:12px;}
+  .guess-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:14px;}
+  .guess-row:last-child{border-bottom:none;}
+  .guess-row .name{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .guess-row .dist{color:rgba(255,255,255,0.5);font-variant-numeric:tabular-nums;}
+  .guess-row .pts{width:70px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums;color:#4ade80;}
+
+  /* Round-by-round table */
+  .table-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums;}
+  th,td{padding:10px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,0.06);white-space:nowrap;}
+  thead th{font-size:12px;font-weight:600;color:rgba(255,255,255,0.7);}
+  .th-player{display:inline-flex;align-items:center;gap:8px;max-width:150px;}
+  .th-player span{overflow:hidden;text-overflow:ellipsis;}
+  th:first-child{text-align:left;color:rgba(255,255,255,0.45);font-weight:500;}
+  tbody tr{cursor:pointer;transition:background 0.15s;}
+  tbody tr:hover{background:rgba(255,255,255,0.03);}
+  tbody tr.selected{background:rgba(74,222,128,0.06);}
+  td.best .cell-score{color:#4ade80;}
+  .cell-score{font-weight:600;}
+  .cell-dist{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;}
+  tfoot td,tfoot th{border-bottom:none;font-weight:700;padding-top:14px;}
+  tfoot th{color:#fff;}
+
+  /* Google Maps info window content (it sits on Google's white bubble) */
+  .iw{font-family:'Inter',sans-serif;color:#0f1613;min-width:140px;}
+  .iw strong{display:block;font-size:14px;margin-bottom:2px;}
+  .iw div{font-size:12px;color:#4b5563;}
+
+  .state{text-align:center;padding:80px 0;}
+  .state h1{margin-bottom:12px;}
+  .state p{margin-bottom:28px;}
+
+  @media (max-width: 640px){
+    .topnav{padding:20px 16px;}
+    .container{padding:16px 16px 60px;}
+    .panel{padding:18px;}
+    h1{font-size:30px;}
+    .share-row,.action{flex-direction:column;align-items:stretch;}
+    #resultsMap{height:340px;}
+  }
+</style>
+</head>
+<body>
+<div class="topnav">
+  <a class="brand" href="mode.html">Guess<span>ZA</span></a>
+  <div class="nav-right">
+    <span class="who" id="who"></span>
+    <button class="logout" onclick="logout()">Log out</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="state" id="loading"><p class="muted">Loading challenge…</p></div>
+
+  <div class="state" id="error" hidden>
+    <h1 id="errorTitle">Challenge not found</h1>
+    <p class="muted" id="errorMsg"></p>
+    <a class="btn btn-primary" href="mode.html">Back to modes</a>
+  </div>
+
+  <div id="main" hidden>
+    <div class="eyebrow">Challenge <span class="badge" id="statusBadge"></span></div>
+    <h1 id="title"></h1>
+    <p class="sub muted">Five locations, the same order for everyone. Highest total wins.</p>
+
+    <div class="panel" id="share">
+      <div class="panel-label">Invite friends</div>
+      <div class="share-row">
+        <input id="shareLink" readonly aria-label="Challenge link"/>
+        <button class="btn btn-secondary" id="copyBtn" onclick="copyLink()">Copy link</button>
+      </div>
+    </div>
+
+    <div class="panel action" id="action">
+      <p id="actionText"></p>
+      <button class="btn btn-primary" id="actionBtn" hidden></button>
+    </div>
+
+    <div id="results" hidden>
+      <div class="panel">
+        <div class="headline" id="headline"></div>
+        <ol class="standings" id="standings"></ol>
+      </div>
+
+      <div class="panel" id="mapPanel">
+        <div class="panel-label">Where everyone guessed</div>
+        <div class="round-tabs" id="roundTabs"></div>
+        <div id="resultsMap"></div>
+        <div class="legend" id="legend"></div>
+        <div class="round-detail" id="roundDetail" hidden>
+          <div class="loc-name" id="locName"></div>
+          <div class="loc-sub muted" id="locSub"></div>
+          <div id="guessList"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-label">Round by round</div>
+        <div class="table-wrap"><table id="roundTable"></table></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/maps-loader.js"></script>
+<script>
+  requireLogin();
+
+  // All API data goes into the page through textContent (see api.js): nicknames are user input.
+  const code = new URLSearchParams(window.location.search).get('code');
+  const $ = id => document.getElementById(id);
+
+  getMe().then(me => { $('who').textContent = me.nickname; }).catch(() => {});
+
+  // ---------- Avatars ----------
+  // DiceBear "Lorelei" style (CC0 1.0, no attribution required: https://www.dicebear.com/licenses/).
+  // Generated in the browser from the nickname, so nicknames are never sent to a third-party server.
+  // If the CDN is unreachable, players get a coloured initial instead.
+  const DICEBEAR = 'https://cdn.jsdelivr.net/npm/@dicebear';
+  let dicebearAvatar = null;
+  const avatarsReady = Promise.all([
+    import(`${DICEBEAR}/core@9.4.2/+esm`),
+    import(`${DICEBEAR}/lorelei@9.4.2/+esm`),
+  ]).then(([core, lorelei]) => {
+    dicebearAvatar = (seed, color) =>
+      core.createAvatar(lorelei, { seed, backgroundColor: [color.slice(1)], radius: 50 }).toDataUri();
+  }).catch(err => console.warn('DiceBear unavailable, using initials', err));
+
+  // One colour per player, by finishing position. It's used for the avatar background and the map lines.
+  const PLAYER_COLORS = ['#60a5fa', '#f472b6', '#fbbf24', '#a78bfa', '#f87171', '#2dd4bf', '#fb923c', '#a3e635'];
+  const playerColor = i => PLAYER_COLORS[i % PLAYER_COLORS.length];
+
+  function escapeXml(s){
+    return s.replace(/[<>&"']/g, c => ({ '<':'&lt;', '>':'&gt;', '&':'&amp;', '"':'&quot;', "'":'&apos;' }[c]));
+  }
+
+  function initialAvatar(name, color){
+    const letter = escapeXml((Array.from((name || '?').trim())[0] || '?').toUpperCase());
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">`
+      + `<circle cx="32" cy="32" r="32" fill="${color}"/>`
+      + `<text x="32" y="42" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700" fill="#0f1613">${letter}</text></svg>`;
+    return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg);
+  }
+
+  const avatarCache = new Map();
+  function avatarUrl(name, color){
+    if(!dicebearAvatar) return initialAvatar(name, color);
+    const key = name + color;
+    if(!avatarCache.has(key)) avatarCache.set(key, dicebearAvatar(name, color));
+    return avatarCache.get(key);
+  }
+
+  // Calls set() with an avatar right away (an initial if DiceBear is still loading),
+  // then again with the DiceBear face once it's ready.
+  function applyAvatar(name, color, set){
+    set(avatarUrl(name, color));
+    if(!dicebearAvatar) avatarsReady.then(() => { if(dicebearAvatar) set(avatarUrl(name, color)); });
+  }
+
+  function avatarImg(name, color, extraClass){
+    const img = el('img', 'avatar' + (extraClass ? ' ' + extraClass : ''));
+    img.alt = '';
+    applyAvatar(name, color, url => { img.src = url; });
+    return img;
+  }
+
+  // ---------- Helpers ----------
+  function el(tag, className, text){
+    const node = document.createElement(tag);
+    if(className) node.className = className;
+    if(text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function show(section){
+    ['loading', 'error', 'main'].forEach(id => { $(id).hidden = id !== section; });
+  }
+
+  function showError(title, message){
+    $('errorTitle').textContent = title;
+    $('errorMsg').textContent = message;
+    show('error');
+  }
+
+  function formatDistance(m){
+    if(m === null || m === undefined) return '—';
+    return m >= 1000 ? (m / 1000).toFixed(1) + ' km' : m + ' m';
+  }
+
+  function formatProvince(p){
+    if(!p) return '';
+    if(p === 'KWAZULU_NATAL') return 'KwaZulu-Natal';
+    return p.toLowerCase().split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
+  // When the 5-minute timer runs out with no pin, game.html submits (0, 0). That's not a real guess.
+  function hasGuess(r){
+    return !!r && r.guessLat != null && r.guessLng != null && !(r.guessLat === 0 && r.guessLng === 0);
+  }
+
+  // ---------- Loading and top of page ----------
+  async function load(){
+    if(!code){
+      showError('No challenge here', 'This link is missing its challenge code.');
+      return;
+    }
+    try{
+      const info = await api(`/api/challenges/${encodeURIComponent(code)}`);
+      render(info);
+    }catch(e){
+      if(e instanceof ApiError && e.status === 404){
+        showError('Challenge not found', 'Check the link. The code might be mistyped.');
+      }else{
+        showError('Something went wrong', 'Could not load this challenge. Is the server running?');
+      }
+    }
+  }
+
+  function render(info){
+    $('title').textContent = `${info.creator}'s challenge`;
+
+    const badge = $('statusBadge');
+    badge.textContent = info.expired ? 'Expired' : 'Open';
+    badge.className = 'badge ' + (info.expired ? 'badge-expired' : 'badge-open');
+
+    // Nobody new can join an expired challenge, so there's nothing to share.
+    $('share').hidden = info.expired;
+    $('shareLink').value = `${window.location.origin}/challenge.html?code=${encodeURIComponent(info.code)}`;
+
+    renderAction(info);
+    renderResults(info);
+    show('main');
+  }
+
+  // What the caller can do next depends on myStatus: null (never started), IN_PROGRESS, COMPLETED.
+  function renderAction(info){
+    const text = $('actionText');
+    const btn = $('actionBtn');
+    btn.hidden = true;
+    btn.disabled = false;
+    $('action').hidden = false;
+
+    if(info.myStatus === 'COMPLETED'){
+      $('action').hidden = true;
+      return;
+    }
+
+    if(info.myStatus === 'IN_PROGRESS'){
+      const gameId = findMyGameId(info);
+      if(gameId){
+        text.textContent = "You've started this challenge. Finish it to see how everyone did.";
+        btn.textContent = 'Continue →';
+        btn.onclick = () => goToGame(gameId);
+        btn.hidden = false;
+      }else{
+        text.textContent = "You've started this challenge on another device. Finish it there to see the results.";
+      }
+      return;
+    }
+
+    if(info.expired){
+      text.textContent = 'This challenge expired before you played it.';
+      return;
+    }
+
+    text.textContent = 'Scores stay hidden until you finish, so no peeking.';
+    btn.textContent = 'Play challenge →';
+    btn.onclick = play;
+    btn.hidden = false;
+  }
+
+  // Prefer the server's answer (myGameId). The browser's last challenge game is a fallback for
+  // older responses without it.
+  function findMyGameId(info){
+    if(info.myGameId) return info.myGameId;
+    const sameChallenge = localStorage.getItem('lastMode') === 'challenge'
+      && localStorage.getItem('challengeCode') === info.code;
+    return sameChallenge ? localStorage.getItem('gameId') : null;
+  }
+
+  function goToGame(gameId){
+    // game.html, result.html and end.html read these, the same as for solo games
+    localStorage.setItem('gameId', gameId);
+    localStorage.setItem('lastMode', 'challenge');
+    localStorage.setItem('challengeCode', code);
+    localStorage.removeItem('lastProvince');
+    localStorage.removeItem('lastDifficulty');
+    window.location.href = 'game.html';
+  }
+
+  async function play(){
+    const btn = $('actionBtn');
+    btn.disabled = true;
+    try{
+      const game = await api(`/api/challenges/${encodeURIComponent(code)}/play`, { method:'POST' });
+      if(!game.id){
+        // startGame returns locationsExhausted (no id) if the challenge has fewer than 5 locations
+        btn.disabled = false;
+        alert("This challenge doesn't have enough locations to play.");
+        return;
+      }
+      goToGame(game.id);
+    }catch(e){
+      // 409: already started (another tab, a double click). 410: expired since the page loaded.
+      // Either way the server knows the real state, so reload and render that.
+      if(e instanceof ApiError && (e.status === 409 || e.status === 410)){
+        load();
+        return;
+      }
+      btn.disabled = false;
+      alert('Could not start the challenge. Is the server running?');
+    }
+  }
+
+  // ---------- Results ----------
+  let results = { players: [], locations: [] };
+
+  function renderResults(info){
+    $('results').hidden = info.myStatus !== 'COMPLETED';
+    if($('results').hidden) return;
+
+    // The server sorts by totalScore descending, so players[0] is the leader.
+    results = { players: info.results || [], locations: info.locations || [] };
+    const players = results.players;
+    const multiplayer = players.length > 1;
+    const draw = multiplayer && players[0].totalScore === players[1].totalScore;
+
+    const headline = $('headline');
+    headline.className = 'headline';
+    if(!multiplayer){
+      headline.textContent = info.expired
+        ? 'Nobody else played this one.'
+        : 'Nobody else has finished yet. Send them the link.';
+    }else if(draw){
+      headline.textContent = "It's a draw at the top!";
+    }else{
+      headline.textContent = `${players[0].nickname} wins!`;
+      headline.classList.add('win');
+    }
+
+    // Standings. Equal totals share a rank (1, 1, 3).
+    const list = $('standings');
+    list.replaceChildren();
+    players.forEach((p, i) => {
+      const rank = players.findIndex(q => q.totalScore === p.totalScore) + 1;
+      const li = el('li', 'standing' + (multiplayer && rank === 1 ? ' first' : ''));
+      li.append(
+        el('span', 'rank', String(rank)),
+        avatarImg(p.nickname, playerColor(i)),
+        el('span', 'name', p.nickname),
+        el('span', 'total', (p.totalScore || 0).toLocaleString())
+      );
+      list.append(li);
+    });
+
+    renderRoundTable(players, multiplayer);
+
+    // The map needs the actual locations. Without them (an older backend) only the table shows.
+    $('mapPanel').hidden = results.locations.length === 0;
+    if(results.locations.length){
+      renderLegend();
+      selectRound(0);
+      loadGoogleMaps('initResultsMap');
+    }
+  }
+
+  // Rounds as rows, players as columns, so the same location lines up side by side.
+  // Clicking a row shows that round on the map.
+  function renderRoundTable(players, multiplayer){
+    const table = $('roundTable');
+    table.replaceChildren();
+
+    const headRow = el('tr');
+    headRow.append(el('th', '', 'Round'));
+    players.forEach((p, i) => {
+      const th = el('th');
+      const wrap = el('span', 'th-player');
+      wrap.title = p.nickname; // full name on hover when it's truncated
+      wrap.append(avatarImg(p.nickname, playerColor(i), 'avatar-sm'), el('span', '', p.nickname));
+      th.append(wrap);
+      headRow.append(th);
+    });
+    const thead = el('thead');
+    thead.append(headRow);
+
+    const roundNumbers = [...new Set(players.flatMap(p => p.rounds.map(r => r.roundNumber)))]
+      .sort((a, b) => a - b);
+
+    const tbody = el('tbody');
+    roundNumbers.forEach(n => {
+      const row = el('tr');
+      row.dataset.round = n;
+      row.addEventListener('click', () => {
+        if($('mapPanel').hidden) return;
+        selectRound(n);
+        $('mapPanel').scrollIntoView({ behavior:'smooth', block:'start' });
+      });
+      row.append(el('th', '', String(n)));
+      const cells = players.map(p => p.rounds.find(r => r.roundNumber === n));
+      const best = Math.max(...cells.map(c => (c ? c.score || 0 : -1)));
+      cells.forEach(c => {
+        const td = el('td', multiplayer && c && (c.score || 0) === best ? 'best' : '');
+        if(c){
+          td.append(
+            el('div', 'cell-score', (c.score || 0).toLocaleString()),
+            el('div', 'cell-dist', hasGuess(c) ? formatDistance(c.distanceMeters) : 'no guess')
+          );
+        }else{
+          td.textContent = '—';
+        }
+        row.append(td);
+      });
+      tbody.append(row);
+    });
+
+    const footRow = el('tr');
+    footRow.append(el('th', '', 'Total'));
+    players.forEach(p => footRow.append(el('td', '', (p.totalScore || 0).toLocaleString())));
+    const tfoot = el('tfoot');
+    tfoot.append(footRow);
+
+    table.append(thead, tbody, tfoot);
+  }
+
+  function renderLegend(){
+    const legend = $('legend');
+    legend.replaceChildren();
+    results.players.forEach((p, i) => {
+      const item = el('span', 'legend-item');
+      const swatch = el('span', 'swatch');
+      swatch.style.borderColor = playerColor(i);
+      item.append(avatarImg(p.nickname, playerColor(i), 'avatar-sm'), el('span', 'name', p.nickname), swatch);
+      legend.append(item);
+    });
+  }
+
+  // ---------- Round selection (tabs, table highlight, detail list) ----------
+  let selectedRound = 0; // 0 = all rounds
+
+  function selectRound(n){
+    selectedRound = n;
+
+    const tabs = $('roundTabs');
+    tabs.replaceChildren();
+    [0, ...results.locations.map(l => l.roundNumber)].forEach(r => {
+      const tab = el('button', 'tab' + (r === n ? ' active' : ''), r === 0 ? 'All rounds' : `Round ${r}`);
+      tab.type = 'button';
+      tab.addEventListener('click', () => selectRound(r));
+      tabs.append(tab);
+    });
+
+    document.querySelectorAll('#roundTable tbody tr').forEach(tr => {
+      tr.classList.toggle('selected', Number(tr.dataset.round) === n);
+    });
+
+    renderRoundDetail();
+    drawMap();
+  }
+
+  function renderRoundDetail(){
+    const loc = results.locations.find(l => l.roundNumber === selectedRound);
+    $('roundDetail').hidden = !loc;
+    if(!loc) return;
+
+    $('locName').textContent = loc.name;
+    $('locSub').textContent = [loc.city, formatProvince(loc.province)].filter(Boolean).join(' · ');
+
+    // Best guess first
+    const rows = results.players
+      .map((p, i) => ({ p, color: playerColor(i), r: p.rounds.find(x => x.roundNumber === loc.roundNumber) }))
+      .sort((a, b) => ((b.r && b.r.score) || 0) - ((a.r && a.r.score) || 0));
+
+    const list = $('guessList');
+    list.replaceChildren();
+    rows.forEach(({ p, color, r }) => {
+      const row = el('div', 'guess-row');
+      row.append(
+        avatarImg(p.nickname, color),
+        el('span', 'name', p.nickname),
+        el('span', 'dist', hasGuess(r) ? formatDistance(r.distanceMeters) + ' away' : 'no guess'),
+        el('span', 'pts', ((r && r.score) || 0).toLocaleString())
+      );
+      list.append(row);
+    });
+  }
+
+  // ---------- Google Map ----------
+  let resultsMap = null, infoWindow = null, overlays = [];
+
+  // Dark map to match the site
+  const DARK_MAP = [
+    { elementType:'geometry', stylers:[{ color:'#17201c' }] },
+    { elementType:'labels.text.fill', stylers:[{ color:'#8a9a92' }] },
+    { elementType:'labels.text.stroke', stylers:[{ color:'#0f1613' }] },
+    { featureType:'administrative', elementType:'geometry.stroke', stylers:[{ color:'#3a4a42' }] },
+    { featureType:'administrative.province', elementType:'geometry.stroke', stylers:[{ color:'#4b5d54' }] },
+    { featureType:'landscape.natural', elementType:'geometry', stylers:[{ color:'#1a2520' }] },
+    { featureType:'poi', stylers:[{ visibility:'off' }] },
+    { featureType:'road', elementType:'geometry', stylers:[{ color:'#26302b' }] },
+    { featureType:'road', elementType:'labels', stylers:[{ visibility:'off' }] },
+    { featureType:'transit', stylers:[{ visibility:'off' }] },
+    { featureType:'water', elementType:'geometry', stylers:[{ color:'#0b1a24' }] },
+    { featureType:'water', elementType:'labels.text.fill', stylers:[{ color:'#3d5566' }] },
+  ];
+
+  // Called by maps-loader.js once Google Maps has loaded.
+  function initResultsMap(){
+    resultsMap = new google.maps.Map($('resultsMap'), {
+      center:{ lat:-28.5, lng:24.5 }, zoom:5,
+      disableDefaultUI:true, zoomControl:true, clickableIcons:false,
+      gestureHandling:'cooperative', // don't trap page scrolling on phones
+      styles:DARK_MAP,
+    });
+    infoWindow = new google.maps.InfoWindow();
+    drawMap();
+  }
+
+  // The actual location: a white numbered marker with a green ring.
+  function locationIcon(roundNumber){
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40">`
+      + `<circle cx="20" cy="20" r="17" fill="#ffffff" stroke="#4ade80" stroke-width="4"/>`
+      + `<text x="20" y="26" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="16" font-weight="800" fill="#0f1613">${Number(roundNumber)}</text></svg>`;
+    return {
+      url:'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(svg),
+      scaledSize:new google.maps.Size(36, 36),
+      anchor:new google.maps.Point(18, 18),
+    };
+  }
+
+  function openInfo(marker, title, lines){
+    const box = el('div', 'iw');
+    box.append(el('strong', '', title));
+    lines.forEach(line => box.append(el('div', '', line)));
+    infoWindow.setContent(box);
+    infoWindow.open({ map:resultsMap, anchor:marker });
+  }
+
+  function drawMap(){
+    if(!resultsMap) return;
+    overlays.forEach(o => o.setMap(null));
+    overlays = [];
+    infoWindow.close();
+
+    const bounds = new google.maps.LatLngBounds();
+    let points = 0;
+    const rounds = selectedRound === 0
+      ? results.locations
+      : results.locations.filter(l => l.roundNumber === selectedRound);
+
+    rounds.forEach(loc => {
+      const actual = { lat:loc.latitude, lng:loc.longitude };
+      bounds.extend(actual);
+      points++;
+
+      results.players.forEach((p, i) => {
+        const r = p.rounds.find(x => x.roundNumber === loc.roundNumber);
+        if(!hasGuess(r)) return;
+        const guess = { lat:r.guessLat, lng:r.guessLng };
+        const color = playerColor(i);
+        bounds.extend(guess);
+        points++;
+
+        // Dashed line from the guess to the answer
+        overlays.push(new google.maps.Polyline({
+          path:[guess, actual], map:resultsMap, strokeOpacity:0,
+          icons:[{ icon:{ path:'M 0,-1 0,1', strokeOpacity:0.9, strokeColor:color, scale:2.5 }, offset:'0', repeat:'10px' }],
+        }));
+
+        const marker = new google.maps.Marker({
+          position:guess, map:resultsMap, zIndex:10 + i,
+          title:`${p.nickname}, round ${loc.roundNumber}`,
+        });
+        applyAvatar(p.nickname, color, url => marker.setIcon({
+          url, scaledSize:new google.maps.Size(40, 40), anchor:new google.maps.Point(20, 20),
+        }));
+        marker.addListener('click', () => openInfo(marker, p.nickname, [
+          `Round ${loc.roundNumber}: ${loc.name}`,
+          `${formatDistance(r.distanceMeters)} away · ${(r.score || 0).toLocaleString()} pts`,
+        ]));
+        overlays.push(marker);
+      });
+
+      // The answer goes on top of everyone's avatars
+      const answer = new google.maps.Marker({
+        position:actual, map:resultsMap, zIndex:1000,
+        icon:locationIcon(loc.roundNumber), title:loc.name,
+      });
+      answer.addListener('click', () => openInfo(answer, loc.name, [
+        [loc.city, formatProvince(loc.province)].filter(Boolean).join(' · '),
+        `Round ${loc.roundNumber}`,
+      ]));
+      overlays.push(answer);
+    });
+
+    if(points === 1){
+      // Only the answer (nobody pinned this round): fitBounds would zoom all the way in
+      resultsMap.setCenter(bounds.getCenter());
+      resultsMap.setZoom(8);
+    }else if(points > 1){
+      resultsMap.fitBounds(bounds, 56);
+    }
+  }
+
+  async function copyLink(){
+    const input = $('shareLink');
+    const btn = $('copyBtn');
+    try{
+      await navigator.clipboard.writeText(input.value);
+    }catch(e){
+      // The Clipboard API needs HTTPS or localhost. Elsewhere, select the text so it can be copied by hand.
+      input.select();
+      document.execCommand('copy');
+    }
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = 'Copy link'; }, 2000);
+  }
+
+  load();
+</script>
+</body>
+</html>

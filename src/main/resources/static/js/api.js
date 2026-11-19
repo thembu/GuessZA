@@ -33,9 +33,26 @@ function isLoggedIn() {
   return !!token && !isExpired(token);
 }
 
-function goToLogin() {
+// Sends the user to login. By default it remembers the current page as ?next=, so a friend
+// who opens a challenge link while logged out comes back to that challenge afterwards (#25).
+function goToLogin(returnHere = true) {
   clearToken();
-  window.location.href = '/login.html';
+  const next = returnHere
+    ? '?next=' + encodeURIComponent(window.location.pathname + window.location.search)
+    : '';
+  window.location.href = '/login.html' + next;
+}
+
+// Where login/register should go next. Only same-origin paths are accepted: without that check,
+// a link like /login.html?next=https://evil.example would turn our login page into an open redirect.
+function safeNext(fallback = 'mode.html') {
+  const next = new URLSearchParams(window.location.search).get('next');
+  if (!next) return fallback;
+  try {
+    const url = new URL(next, window.location.origin);
+    if (url.origin === window.location.origin) return url.pathname + url.search;
+  } catch (e) { /* malformed */ }
+  return fallback;
 }
 
 // Call at the top of every page that needs an account.
@@ -44,8 +61,9 @@ function requireLogin() {
 }
 
 // Logout is client-side (#18): forget the token. It stays valid on the server until it expires.
+// No ?next= here: logging back in shouldn't drop you into the page you just left.
 function logout() {
-  goToLogin();
+  goToLogin(false);
 }
 
 class ApiError extends Error {

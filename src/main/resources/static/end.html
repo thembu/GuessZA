@@ -62,12 +62,6 @@
     border-color:rgba(255,255,255,0.15);
   }
   .btn-secondary:hover{border-color:rgba(255,255,255,0.35);background:rgba(255,255,255,0.03);}
-  .home-link{
-    display:inline-block;margin-top:16px;
-    font-size:13px;color:rgba(255,255,255,0.4);
-    text-decoration:none;transition:color 0.15s;
-  }
-  .home-link:hover{color:#fff;}
 </style>
 </head>
 <body>
@@ -84,7 +78,6 @@
     <p class="high-score">Your best: <span id="highScore">—</span></p>
     <button class="btn btn-primary" onclick="playAgain()" id="playAgainBtn">Play Again</button>
     <a class="btn btn-secondary" href="mode.html">Choose Another Mode</a>
-    <a href="index.html" class="home-link">Back to home</a>
   </div>
 </div>
 <script src="/js/api.js"></script>
@@ -115,6 +108,9 @@
         const d = JSON.parse(localStorage.getItem('lastDifficulty'));
         if(d && d.display) btn.textContent = `Play Again on ${d.display}`;
       }catch(e){}
+    }else if(lastMode === 'challenge'){
+      // a challenge can only be played once, so the next step is comparing scores, not replaying
+      btn.textContent = 'See Challenge Results';
     }
 
     try{
@@ -126,6 +122,11 @@
 
   async function playAgain(){
   const lastMode = localStorage.getItem('lastMode');
+  if(lastMode === 'challenge'){
+    const code = localStorage.getItem('challengeCode');
+    window.location.href = code ? 'challenge.html?code=' + encodeURIComponent(code) : 'mode.html';
+    return;
+  }
   try{
     let game;
     // the server takes the player from the token (#19), so no userId is sent
