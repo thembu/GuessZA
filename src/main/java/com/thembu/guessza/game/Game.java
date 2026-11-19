@@ -1,5 +1,6 @@
 package com.thembu.guessza.game;
 
+import com.thembu.guessza.challenge.Challenges;
 import com.thembu.guessza.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,6 +20,10 @@ public class Game {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "challenge_id")
+    private Challenges challenge;
 
     @Enumerated(EnumType.STRING)
     private GameStatus status = GameStatus.IN_PROGRESS;
@@ -84,5 +89,13 @@ public class Game {
 
     public void setStatus(GameStatus status) {
         this.status = status;
+    }
+
+    public Challenges getChallenge() {
+        return challenge;
+    }
+
+    public void setChallenge(Challenges challenge) {
+        this.challenge = challenge;
     }
 }
