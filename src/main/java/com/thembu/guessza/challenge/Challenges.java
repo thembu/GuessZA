@@ -27,6 +27,8 @@ public class Challenges {
 
     private LocalDateTime expires_at;
 
+    private LocalDateTime daily_date;
+
     public UUID getId() {
         return id;
     }
@@ -65,5 +67,13 @@ public class Challenges {
 
     public void setCreated_at(LocalDateTime created_at) {
         this.created_at = created_at;
+    }
+
+    public LocalDateTime getDaily_date() {
+        return daily_date;
+    }
+
+    public void setDaily_date(LocalDateTime daily_date) {
+        this.daily_date = daily_date;
     }
 }
