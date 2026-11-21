@@ -17,11 +17,14 @@ import com.thembu.guessza.user.User;
 import com.thembu.guessza.user.UserNotFoundException;
 import com.thembu.guessza.user.UserRepository;
 import com.thembu.guessza.user.UserService;
+import jakarta.annotation.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,15 +53,12 @@ public class ChallengeService {
         this.locationRepository = locationRepository;
     }
 
-    @Transactional
-    public ChallengeResponse  createChallenge(String username) {
+
+    private Challenges buildChallenge(@Nullable User creator, LocalDateTime expiresAt, LocalDate dailyDate) {
 
         //create the actual challenge first before connecting to a game
 
         Challenges challenge = new Challenges();
-
-        //set authed user at the creator
-        User creator = userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
 
         challenge.setCreator(creator);
 
@@ -66,12 +66,18 @@ public class ChallengeService {
         challenge.setCode(CodeGenerator.generate(16));
 
         //set expiry date
-        challenge.setExpires_at(LocalDateTime.now().plusHours(10));
+        challenge.setExpires_at(expiresAt);
+
+        //set daily challenge date if this is a daily challenge
+
+        challenge.setDailyDate(dailyDate);
 
         //save challenge
         challengeRepository.save(challenge);
 
-        List<Location> locations = locationService.getRandomLocations(5 , creator.getId());
+        UUID creator_id  = creator != null ? creator.getId() : null;
+
+        List<Location> locations = locationService.getRandomLocations(ROUNDS_PER_GAME , creator_id);
 
         int round = 1;
 
@@ -81,8 +87,41 @@ public class ChallengeService {
             round++;
         }
 
+        return challenge;
+    }
+
+    @Transactional
+    public ChallengeResponse  createChallenge(String username) {
+
+
+
+        //set authed user at the creator
+        User creator = userRepository.findUserByUsername(username).orElseThrow(() -> new UserNotFoundException(username));
+
+
+        Challenges challenge = buildChallenge(creator , LocalDateTime.now().plusHours(10) , null);
+
 
         return new ChallengeResponse(challenge.getCode() , "/challenge.html?code=".concat(challenge.getCode()));
+
+    }
+
+
+
+    @Transactional
+    public  ChallengeResponse createDailyChallenge() {
+
+        //fetch daily challenge
+        Optional<Challenges> dailyChallenge = challengeRepository.findByDailyDate(LocalDate.now(ZoneId.of("Africa/Johannesburg")));
+
+        //if its already there just return it
+        if(dailyChallenge.isPresent()) return new ChallengeResponse(dailyChallenge.get().getCode() , "/challenge.html?code=".concat(dailyChallenge.get().getCode()));
+
+        //if not build a new one
+        Challenges newDailyChallenge = buildChallenge(null , LocalDateTime.now().plusHours(24) ,  LocalDate.now(ZoneId.of("Africa/Johannesburg")));
+
+
+        return new ChallengeResponse(newDailyChallenge.getCode() , "/challenge.html?code=".concat(newDailyChallenge.getCode()));
 
     }
 
@@ -152,7 +191,7 @@ public class ChallengeService {
 
     private List<RoundLocation> buildLocations(UUID challengeId) {
         // findChallengeLocations returns them ORDER BY round_number, and createChallenge numbers
-        // rounds 1..n with no gaps, so list position + 1 is the round number
+        // rounds 1...n with no gaps, so list position + 1 is the round number
         List<Location> locations = locationRepository.findChallengeLocations(challengeId, ROUNDS_PER_GAME);
         return IntStream.range(0, locations.size())
                 .mapToObj(i -> {

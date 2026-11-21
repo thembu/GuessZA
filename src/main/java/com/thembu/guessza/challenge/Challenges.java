@@ -5,6 +5,7 @@ import com.thembu.guessza.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -27,7 +28,7 @@ public class Challenges {
 
     private LocalDateTime expires_at;
 
-    private LocalDateTime daily_date;
+    private LocalDate dailyDate;
 
     public UUID getId() {
         return id;
@@ -69,11 +70,11 @@ public class Challenges {
         this.created_at = created_at;
     }
 
-    public LocalDateTime getDaily_date() {
-        return daily_date;
+    public LocalDate getDailyDate() {
+        return dailyDate;
     }
 
-    public void setDaily_date(LocalDateTime daily_date) {
-        this.daily_date = daily_date;
+    public void setDailyDate(LocalDate daily_date) {
+        this.dailyDate = daily_date;
     }
 }
