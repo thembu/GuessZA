@@ -71,7 +71,9 @@ public class ChallengeController {
         try {
             return challengeService.createDailyChallenge();
         } catch (DataIntegrityViolationException ex) {
-            throw new DailyChallengeAlreadyCreatedException("Daily Challenge already created");
+            // Two requests both saw "no daily yet" and both inserted; the unique daily_date stopped ours.
+            // Our transaction has rolled back, so this call runs in a fresh one and finds the row the other request created.
+            return challengeService.createDailyChallenge();
         }
     }
 

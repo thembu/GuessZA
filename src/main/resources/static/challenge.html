@@ -143,7 +143,7 @@
   </div>
 
   <div id="main" hidden>
-    <div class="eyebrow">Challenge <span class="badge" id="statusBadge"></span></div>
+    <div class="eyebrow"><span id="eyebrowText">Challenge</span> <span class="badge" id="statusBadge"></span></div>
     <h1 id="title"></h1>
     <p class="sub muted">Five locations, the same order for everyone. Highest total wins.</p>
 
@@ -302,14 +302,25 @@
   }
 
   function render(info){
-    $('title').textContent = `${info.creator}'s challenge`;
+    // Dailies (#26) have no creator. dailyDate is "YYYY-MM-DD"; build the Date from its parts
+    // so it isn't parsed as UTC midnight and shown as the previous day.
+    const isDaily = !!info.dailyDate;
+    if(isDaily){
+      const [y, m, d] = info.dailyDate.split('-').map(Number);
+      const day = new Date(y, m - 1, d).toLocaleDateString(undefined, { weekday:'long', day:'numeric', month:'long' });
+      $('eyebrowText').textContent = 'Daily challenge';
+      $('title').textContent = day;
+    }else{
+      $('title').textContent = `${info.creator}'s challenge`;
+    }
 
     const badge = $('statusBadge');
     badge.textContent = info.expired ? 'Expired' : 'Open';
     badge.className = 'badge ' + (info.expired ? 'badge-expired' : 'badge-open');
 
     // Nobody new can join an expired challenge, so there's nothing to share.
-    $('share').hidden = info.expired;
+    // Everyone already gets the daily from the mode page, so there's no link to share either.
+    $('share').hidden = info.expired || isDaily;
     $('shareLink').value = `${window.location.origin}/challenge.html?code=${encodeURIComponent(info.code)}`;
 
     renderAction(info);

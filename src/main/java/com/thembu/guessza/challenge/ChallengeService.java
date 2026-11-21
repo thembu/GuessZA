@@ -115,14 +115,23 @@ public class ChallengeService {
     @Transactional
     public  ChallengeResponse createDailyChallenge() {
 
+        // work out "today" once, so the lookup and the build can't disagree if this runs across midnight
+        LocalDate today = LocalDate.now(DAILY_ZONE);
+
         //fetch daily challenge
-        Optional<Challenges> dailyChallenge = challengeRepository.findByDailyDate(LocalDate.now(ZoneId.of("Africa/Johannesburg")));
+        Optional<Challenges> dailyChallenge = challengeRepository.findByDailyDate(today);
 
         //if its already there just return it
         if(dailyChallenge.isPresent()) return new ChallengeResponse(dailyChallenge.get().getCode() , "/challenge.html?code=".concat(dailyChallenge.get().getCode()));
 
+        // expires at the next SAST midnight, whoever creates it and whenever. expires_at is compared
+        // against LocalDateTime.now() (server zone), so convert the SAST instant into server time
+        LocalDateTime expiresAt = today.plusDays(1).atStartOfDay(DAILY_ZONE)
+                .withZoneSameInstant(ZoneId.systemDefault())
+                .toLocalDateTime();
+
         //if not build a new one
-        Challenges newDailyChallenge = buildChallenge(null , LocalDateTime.now().plusHours(24) ,  LocalDate.now(ZoneId.of("Africa/Johannesburg")));
+        Challenges newDailyChallenge = buildChallenge(null , expiresAt , today);
 
 
         return new ChallengeResponse(newDailyChallenge.getCode() , "/challenge.html?code=".concat(newDailyChallenge.getCode()));
@@ -201,6 +210,7 @@ public class ChallengeService {
         return new ChallengeInfoResponse(
                 challenge.getCode(),
                 challenge.getCreator() != null ? challenge.getCreator().getNickname() : "GuessZA Daily",
+                challenge.getDailyDate(),
                 challenge.getExpires_at(),
                 LocalDateTime.now().isAfter(challenge.getExpires_at()),
                 myStatus,

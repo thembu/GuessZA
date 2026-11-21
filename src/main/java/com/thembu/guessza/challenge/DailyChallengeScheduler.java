@@ -1,6 +1,5 @@
 package com.thembu.guessza.challenge;
 
-import com.thembu.guessza.challenge.dto.ChallengeResponse;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +12,8 @@ public class DailyChallengeScheduler {
         this.challengeService = challengeService;
     }
 
-    @Scheduled(cron = "0 10 13 * * *", zone = "Africa/Johannesburg")
+    // midnight SAST, when the new day's daily starts
+    @Scheduled(cron = "0 0 0 * * *", zone = "Africa/Johannesburg")
     public void  getOrCreateDailyChallenge() {
         challengeService.createDailyChallenge();
     }
