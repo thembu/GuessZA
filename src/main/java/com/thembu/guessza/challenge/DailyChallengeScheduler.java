@@ -14,7 +14,7 @@ public class DailyChallengeScheduler {
     }
 
     @Scheduled(cron = "0 10 13 * * *", zone = "Africa/Johannesburg")
-    public ChallengeResponse startDailyChallenge() {
-        return  challengeService.createDailyChallenge();
+    public void  getOrCreateDailyChallenge() {
+        challengeService.createDailyChallenge();
     }
 }

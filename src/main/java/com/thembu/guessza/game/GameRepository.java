@@ -2,6 +2,7 @@ package com.thembu.guessza.game;
 
 import com.thembu.guessza.challenge.ChallengeResultRow;
 import com.thembu.guessza.challenge.Challenges;
+import com.thembu.guessza.challenge.LeaderboardRow;
 import com.thembu.guessza.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -34,5 +35,17 @@ public interface GameRepository extends JpaRepository<Game , UUID> {
 
     List<ChallengeResultRow> findChallengeResults(@Param("challengeId") UUID challengeId);
 
+    // one row per finished game, best score first. RANK() gives tied scores the same rank (1, 2, 2, 4)
+    @Query(value = """
+          SELECT RANK() OVER (ORDER BY g.total_score DESC) AS "rank",
+                 u.nickname                                AS "nickname",
+                 g.total_score                             AS "totalScore"
+          FROM games g
+          JOIN users u ON u.id = g.user_id
+          WHERE g.challenge_id = :challengeId
+            AND g.status = 'COMPLETED'
+          ORDER BY g.total_score DESC
+          """, nativeQuery = true)
+    List<LeaderboardRow> findDailyChallengeResults(@Param("challengeId") UUID challengeId);
 
 }

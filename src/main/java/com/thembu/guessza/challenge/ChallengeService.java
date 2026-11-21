@@ -2,6 +2,8 @@ package com.thembu.guessza.challenge;
 
 import com.thembu.guessza.challenge.dto.ChallengeInfoResponse;
 import com.thembu.guessza.challenge.dto.ChallengeResponse;
+import com.thembu.guessza.challenge.dto.DailyLeaderboardResponse;
+import com.thembu.guessza.challenge.dto.LeaderboardEntry;
 import com.thembu.guessza.challenge.dto.PlayerResult;
 import com.thembu.guessza.challenge.dto.RoundLocation;
 import com.thembu.guessza.challenge.dto.RoundResult;
@@ -43,6 +45,8 @@ public class ChallengeService {
     private  final UserRepository userRepository;
     private final LocationRepository locationRepository;
     private static final int ROUNDS_PER_GAME = 5;
+    // dailies follow the SA calendar day, not the server's zone (servers usually run on UTC)
+    private static final ZoneId DAILY_ZONE = ZoneId.of("Africa/Johannesburg");
 
     public ChallengeService(ChallengeRepository challengeRepository, LocationService locationService, GameService gameService, GameRepository gameRepository, UserRepository userRepository, LocationRepository locationRepository) {
         this.challengeRepository = challengeRepository;
@@ -126,6 +130,22 @@ public class ChallengeService {
     }
 
 
+    @Transactional(readOnly = true)
+    public DailyLeaderboardResponse getDailyLeaderboard() {
+
+        LocalDate today = LocalDate.now(DAILY_ZONE);
+
+        // no daily yet → empty board. Viewing the board shouldn't create the daily, only playing should
+        List<LeaderboardEntry> entries = challengeRepository.findByDailyDate(today)
+                .map(daily -> gameRepository.findDailyChallengeResults(daily.getId()).stream()
+                        .map(row -> new LeaderboardEntry(row.getRank(), row.getNickname(), row.getTotalScore()))
+                        .toList())
+                .orElse(List.of());
+
+        return new DailyLeaderboardResponse(today, entries);
+    }
+
+
     @Transactional
     public GameResponse StartChallengeGame(String code ,  String username) {
         //create new instance of game entity, add user/player for that game and the challenge they are playing save it
@@ -180,7 +200,7 @@ public class ChallengeService {
 
         return new ChallengeInfoResponse(
                 challenge.getCode(),
-                challenge.getCreator().getNickname(),
+                challenge.getCreator() != null ? challenge.getCreator().getNickname() : "GuessZA Daily",
                 challenge.getExpires_at(),
                 LocalDateTime.now().isAfter(challenge.getExpires_at()),
                 myStatus,

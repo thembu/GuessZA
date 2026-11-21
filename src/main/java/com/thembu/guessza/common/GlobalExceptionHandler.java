@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.thembu.guessza.challenge.ChallengeAlreadyPlayedException;
 import com.thembu.guessza.challenge.ChallengeExpiredException;
 import com.thembu.guessza.challenge.ChallengeNotFoundException;
+import com.thembu.guessza.challenge.DailyChallengeAlreadyCreatedException;
 import com.thembu.guessza.game.GameNotFoundException;
 import com.thembu.guessza.round.RoundAlreadyAnswered;
 import com.thembu.guessza.round.RoundFromCompletedGame;
@@ -50,6 +51,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ChallengeAlreadyPlayedException.class)
     public  ProblemDetail handleChallengeAlreadyPlayed(ChallengeAlreadyPlayedException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , ex.getMessage());
+    }
+
+    @ExceptionHandler(DailyChallengeAlreadyCreatedException.class)
+    public  ProblemDetail handleDailyChallengeAlreadyCreated(DailyChallengeAlreadyCreatedException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT , ex.getMessage());
     }
 

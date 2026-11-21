@@ -3,12 +3,14 @@ package com.thembu.guessza.challenge;
 
 import com.thembu.guessza.challenge.dto.ChallengeInfoResponse;
 import com.thembu.guessza.challenge.dto.ChallengeResponse;
+import com.thembu.guessza.challenge.dto.DailyLeaderboardResponse;
 import com.thembu.guessza.game.dto.GameResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,6 +27,7 @@ public class ChallengeController {
 
     public ChallengeController(ChallengeService challengeService) {
         this.challengeService = challengeService;
+
     }
 
 
@@ -58,6 +61,26 @@ public class ChallengeController {
     @Schema(implementation = ProblemDetail.class)))
     public ChallengeInfoResponse getChallenge(@PathVariable String code, @AuthenticationPrincipal UserDetails principal) {
         return challengeService.getChallengeInfo(code, principal.getUsername());
+    }
+
+    @GetMapping("/daily")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Get today's daily challenge (created on first request if the scheduled job hasn't run yet)")
+    @ApiResponse(responseCode = "200", description = "today's daily challenge code and link", content = @Content(schema = @Schema(implementation = ChallengeResponse.class)))
+    public  ChallengeResponse getDailyChallenge() {
+        try {
+            return challengeService.createDailyChallenge();
+        } catch (DataIntegrityViolationException ex) {
+            throw new DailyChallengeAlreadyCreatedException("Daily Challenge already created");
+        }
+    }
+
+    @GetMapping("/daily/leaderboard")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Today's daily challenge leaderboard (finished games only, best score first; ties share a rank)")
+    @ApiResponse(responseCode = "200", description = "today's ranking, empty if no daily exists yet or nobody has finished", content = @Content(schema = @Schema(implementation = DailyLeaderboardResponse.class)))
+    public DailyLeaderboardResponse getDailyLeaderboard() {
+        return challengeService.getDailyLeaderboard();
     }
 
 }
