@@ -76,10 +76,38 @@
   .challenge-card .mode-name{font-size:24px;}
   .challenge-card .mode-desc{margin-bottom:0;max-width:560px;}
   .challenge-card .mode-cta{white-space:nowrap;}
+  /* Daily challenge (#26): same 5 locations for everyone today, with today's top 5 beside it */
+  .daily-card{
+    margin-top:20px;
+    display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:center;
+    padding:28px 32px;border-radius:16px;
+    border:1px solid rgba(250,204,21,0.3);
+    background:linear-gradient(120deg, rgba(250,204,21,0.13), rgba(250,204,21,0.02));
+  }
+  .daily-card .eyebrow{color:#facc15;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .daily-card .mode-name{font-size:24px;}
+  .daily-card .mode-desc{max-width:520px;}
+  .daily-btn{
+    background:#facc15;color:#0f1613;border:none;border-radius:8px;
+    font-family:inherit;font-size:14px;font-weight:700;padding:12px 20px;cursor:pointer;
+  }
+  .daily-btn:hover{background:#fde047;}
+  .daily-btn:disabled{opacity:0.6;cursor:wait;}
+  .board{background:rgba(0,0,0,0.25);border-radius:12px;padding:16px 18px;}
+  .board-title{font-size:12px;font-weight:600;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px;}
+  .board ol{list-style:none;}
+  .board li{display:flex;gap:12px;font-size:14px;padding:6px 0;border-top:1px solid rgba(255,255,255,0.06);}
+  .board li:first-child{border-top:none;}
+  .board .rank{width:22px;color:rgba(255,255,255,0.45);font-variant-numeric:tabular-nums;}
+  .board .name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .board .score{font-weight:600;font-variant-numeric:tabular-nums;}
+  .board li.me .name,.board li.me .score{color:#facc15;}
+  .board-empty{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.5;}
   @media (max-width: 900px){
     .grid{grid-template-columns:1fr;}
     .mode-card{height:280px;}
     .challenge-card{flex-direction:column;align-items:flex-start;}
+    .daily-card{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -123,6 +151,19 @@
       </div>
     </a>
   </div>
+  <div class="daily-card">
+    <div>
+      <div class="eyebrow">Daily challenge</div>
+      <div class="mode-name">Today's five</div>
+      <p class="mode-desc">Everyone in the country gets the same five locations today. One attempt each. A new set every midnight.</p>
+      <button class="daily-btn" onclick="openDaily(this)">Play today's daily →</button>
+    </div>
+    <div class="board">
+      <div class="board-title">Today's top 5</div>
+      <ol id="dailyBoard"></ol>
+      <p class="board-empty" id="dailyBoardEmpty" hidden>Nobody has finished today's daily yet. Be the first on the board.</p>
+    </div>
+  </div>
   <button class="challenge-card" onclick="createChallenge(this)">
     <div>
       <div class="mode-name">Challenge a friend</div>
@@ -146,6 +187,45 @@
     const stored = JSON.parse(localStorage.getItem('visitedLocations'));
     if(Array.isArray(stored)) visited_locations = stored;
   }catch(e){}
+
+  // Daily challenge (#26). The server returns today's daily, creating it if the midnight job hasn't run.
+  // Playing, resuming and "already played" are all handled by the challenge page, like a friend challenge.
+  async function openDaily(btn){
+    btn.disabled = true;
+    try{
+      const daily = await api('/api/challenges/daily');
+      window.location.href = 'challenge.html?code=' + encodeURIComponent(daily.code);
+    }catch(e){
+      btn.disabled = false;
+      alert("Could not load today's daily. Is the server running?");
+    }
+  }
+
+  // Top 5 of today's board. Built with textContent only: nicknames are user input (see api.js).
+  async function loadDailyBoard(){
+    const list = document.getElementById('dailyBoard');
+    const empty = document.getElementById('dailyBoardEmpty');
+    try{
+      const [board, me] = await Promise.all([api('/api/challenges/daily/leaderboard'), getMe()]);
+      const top = board.entries.slice(0, 5);
+      empty.hidden = top.length > 0;
+      for(const entry of top){
+        const li = document.createElement('li');
+        if(entry.nickname === me.nickname) li.className = 'me';
+        for(const [cls, text] of [['rank', entry.rank], ['name', entry.nickname], ['score', entry.totalScore.toLocaleString()]]){
+          const span = document.createElement('span');
+          span.className = cls;
+          span.textContent = text;
+          li.appendChild(span);
+        }
+        list.appendChild(li);
+      }
+    }catch(e){
+      empty.textContent = 'Leaderboard unavailable right now.';
+      empty.hidden = false;
+    }
+  }
+  loadDailyBoard();
 
   // Creates the challenge only. The creator plays it from the challenge page like everyone else.
   async function createChallenge(btn){
