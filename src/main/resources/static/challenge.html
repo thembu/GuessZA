@@ -583,29 +583,15 @@
   // ---------- Google Map ----------
   let resultsMap = null, infoWindow = null, overlays = [];
 
-  // Dark map to match the site
-  const DARK_MAP = [
-    { elementType:'geometry', stylers:[{ color:'#17201c' }] },
-    { elementType:'labels.text.fill', stylers:[{ color:'#8a9a92' }] },
-    { elementType:'labels.text.stroke', stylers:[{ color:'#0f1613' }] },
-    { featureType:'administrative', elementType:'geometry.stroke', stylers:[{ color:'#3a4a42' }] },
-    { featureType:'administrative.province', elementType:'geometry.stroke', stylers:[{ color:'#4b5d54' }] },
-    { featureType:'landscape.natural', elementType:'geometry', stylers:[{ color:'#1a2520' }] },
-    { featureType:'poi', stylers:[{ visibility:'off' }] },
-    { featureType:'road', elementType:'geometry', stylers:[{ color:'#26302b' }] },
-    { featureType:'road', elementType:'labels', stylers:[{ visibility:'off' }] },
-    { featureType:'transit', stylers:[{ visibility:'off' }] },
-    { featureType:'water', elementType:'geometry', stylers:[{ color:'#0b1a24' }] },
-    { featureType:'water', elementType:'labels.text.fill', stylers:[{ color:'#3d5566' }] },
-  ];
-
   // Called by maps-loader.js once Google Maps has loaded.
+  // Same default roadmap as game.html and result.html, so every map in the game looks alike.
   function initResultsMap(){
     resultsMap = new google.maps.Map($('resultsMap'), {
       center:{ lat:-28.5, lng:24.5 }, zoom:5,
-      disableDefaultUI:true, zoomControl:true, clickableIcons:false,
-      gestureHandling:'cooperative', // don't trap page scrolling on phones
-      styles:DARK_MAP,
+      disableDefaultUI:true, zoomControl:true, clickableIcons:false, mapTypeId:'roadmap',
+      // Scroll wheel zooms the map, like in the game. Trade-off: scrolling the page stalls
+      // while the cursor is over the map (and one-finger drags pan the map on phones).
+      gestureHandling:'greedy',
     });
     infoWindow = new google.maps.InfoWindow();
     drawMap();
